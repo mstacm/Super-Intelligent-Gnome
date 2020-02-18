@@ -65,7 +65,7 @@ function remind_push(msg: Message, args: string[], client: Client) {
     if (sendMsg) {
         // Used to straigh send the messge, now we do a check
         //send_to_channel(communitiesArr[0].trim(), toSend, client);
-        send_checkup(msg, toSend, communitiesArr[0].trim());
+        send_checkup(msg, communitiesArr[0].trim(), toSend, client);
     }
 }
 

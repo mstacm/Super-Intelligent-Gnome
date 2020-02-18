@@ -3,12 +3,11 @@ import { send_to_channel, send_checkup } from "../send";
 
 // Repeats the message back to you.
 
-function cmd_repeat(message: Message) {
+function cmd_repeat(message: Message, client: Client) {
     var toSend: string = message.content.substring(8);
     console.log(toSend);
     if (toSend.length >= 1) {
-        send_checkup(message, "Here", toSend);
-        message.channel.send(toSend);
+        send_checkup(message, "HERE", toSend, client);
     }
 }
 

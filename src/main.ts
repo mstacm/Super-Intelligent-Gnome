@@ -63,7 +63,7 @@ client.on('message', msg => {
     } else if (args[0] === "?scream") {
       cmd_scream(msg, client);
     } else if (args[0] === "?repeat") {
-      cmd_repeat(msg);  
+      cmd_repeat(msg, client);  
     } else {
       msg.channel.send(`Unkown command: ${args[0]}`);
     }

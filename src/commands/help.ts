@@ -18,7 +18,7 @@ let help_message: RichEmbed = new RichEmbed()
     .addField("Example usage", "?scream Welcome to ACM!", true)
 
     .addField("?repeat", "I repeat what you say back to you.")
-    .addField("Examle usage:", "?repeat Does this emoji work?")
+    .addField("Example usage:", "?repeat Does this 👌 emoji work?")
 
     .setTimestamp()
     .setFooter("If you have any questions, talk to Gavin Lewis.", "attachment://acm-logo-thicc.png");
