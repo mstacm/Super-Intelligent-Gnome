@@ -8,6 +8,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "strict": true,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "lib": ["es2015"]
   }
 }

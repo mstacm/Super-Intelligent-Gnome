@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import { send_to_channel } from "../send";
+import { send_to_channel, send_checkup } from "../send";
 
 // Yell at everyone on every server. This will definitely make friends.
 
@@ -9,7 +9,7 @@ function cmd_scream(message: Message, client: Client) {
     var toSend: string = message.content.substring(8);
     console.log(toSend);
     if (toSend.length >= 1) {
-        send_to_channel(SERVERS, toSend, client);
+        send_checkup(message, SERVERS, toSend, client);
     }
 }
 
