@@ -26,7 +26,7 @@ async function send_embed(msg: string, dest: string, client: Client) {
   let msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .attachFile("./resources/acm-logo-thicc.png")
-    .setTitle("ACM Anouncement")
+    .setTitle("ACM Announcement")
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("attachment://acm-logo-thicc.png")
 
