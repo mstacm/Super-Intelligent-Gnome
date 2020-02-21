@@ -13,7 +13,7 @@ function build_test_embed(msg: string, dest: string) {
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("attachment://acm-logo-thicc.png")
     
-    .addField("[at_everyone][anouncement]", msg)
+    .addField("[at_everyone][announcement]", msg)
     .addField("Destination:", dest)
     .addField("What will be removed:", "'- DOUBLE CHECK'\nThe Destination Field\n[at_everyone] will become @")
     .addField("Controls", "You need at least 2 👌 to send the message, otherwise it will timeout and will not be sent.")
@@ -30,7 +30,7 @@ async function send_embed(msg: string, dest: string, client: Client) {
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("attachment://acm-logo-thicc.png")
 
-    .addField("[@everyone][anouncment]", msg);
+    .addField("[@everyone][announcment]", msg);
 
   send_to_channel(dest, msg_embed, client);
 }
