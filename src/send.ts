@@ -9,7 +9,7 @@ function build_test_embed(msg: string, dest: string) {
   return new RichEmbed()
     .setColor("#4AC55E")
     .attachFile("./resources/acm-logo-thicc.png")
-    .setTitle("ACM Anouncement - DOUBLE CHECK")
+    .setTitle("ACM Announcement - DOUBLE CHECK")
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("attachment://acm-logo-thicc.png")
     
