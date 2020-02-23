@@ -53,7 +53,7 @@ client.on('message', msg => {
   if (msg.content === 'ping') {
     cmd_ping(msg);
   }
-  //console.log(msg.member.roles);
+
   if (cmdSwitch === '?' && msg.member.roles.find(role => role.name === "Officers") && msg.member.guild.name === "ACM General") {
     
     if (args[0] === "?help") {

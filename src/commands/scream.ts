@@ -1,5 +1,5 @@
 import { Client, Message } from "discord.js";
-import { send_to_channel, send_checkup } from "../send";
+import { send_checkup } from "../send";
 
 // Yell at everyone on every server. This will definitely make friends.
 

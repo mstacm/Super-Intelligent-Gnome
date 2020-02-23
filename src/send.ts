@@ -30,7 +30,7 @@ async function send_embed(msg: string, dest: string, client: Client) {
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("attachment://acm-logo-thicc.png")
 
-    .addField("[@everyone][announcment]", msg);
+    .addField("[@everyone][announcement]", msg);
 
   send_to_channel(dest, msg_embed, client);
 }
@@ -100,11 +100,7 @@ export function send_to_channel(targets: string, message: string | RichEmbed, cl
       // Add all communities to the targets if everyone was there or no one was
       filteredTargets = ["GEN", "SEC", "WEB", "GAME", "COMP", "W", "HACK", "DATA"];
     }
-    
-    // TODO: Add a check back to the user in an embed to make sure all info is correct before sending
-  
-    console.log(filteredTargets);
-  
+
     filteredTargets.forEach( function(community: string) {
       if (community) {
         try {
@@ -112,8 +108,6 @@ export function send_to_channel(targets: string, message: string | RichEmbed, cl
           if (guild) {
             let channel: TextChannel = guild.channels.find(channel => channel.name === server_info[community].channel) as TextChannel;
             if (channel) {
-              console.log("Simulate sending")
-              //console.log(message);
               channel.send(message);
             } else {
               console.log("Channel: " + server_info[community].channel + " not found");
