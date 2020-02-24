@@ -14,8 +14,8 @@ let help_message: RichEmbed = new RichEmbed()
     .addField("Example usage", "?remind $Title$ |Location| 12/24/2020 08:42-12/25/2020 13:45", true)
     .addField("?remind -p n |SEC|GEN|", "Send reminder n to the Security and General servers.", true)
 
-    .addField("?scream", "Spread your word across every Discord.")
-    .addField("Example usage", "?scream Welcome to ACM!", true)
+    .addField("?scream", "Spread your word across every Discord. Put your title on the first line, and put the message on the line below.")
+    .addField("Example usage", "?scream Title of Event\\nMessage body", true)
 
     .addField("?repeat", "I repeat what you say back to you.")
     .addField("Example usage:", "?repeat Does this 👌 emoji work?")

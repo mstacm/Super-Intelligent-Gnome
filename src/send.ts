@@ -1,16 +1,15 @@
-import { Client, Guild, Message, TextChannel, RichEmbed, ReactionEmoji, MessageReaction, User } from "discord.js";
-import { stringify } from "querystring";
+import { Client, Guild, Message, TextChannel, RichEmbed, MessageReaction, User } from "discord.js";
 let server_info = require("../server_info.json");
 
 /* Build an embed from the given information, intended to use as a check
 *  before sending a message.
 */
-function build_test_embed(msg: string, dest: string) {
+function build_test_embed(msg: string, title: string, dest: string) {
   return new RichEmbed()
     .setColor("#4AC55E")
+    .setTitle(title)
     .attachFile("./resources/acm-logo-thicc.png")
-    .setTitle("ACM Announcement - DOUBLE CHECK")
-    .setAuthor("Super Intelligent Gnome")
+    .setAuthor("ACM Announcement - DOUBLE CHECK")
     .setThumbnail("attachment://acm-logo-thicc.png")
     
     .addField("[at_everyone][announcement]", msg)
@@ -22,12 +21,12 @@ function build_test_embed(msg: string, dest: string) {
 }
 
 // Generate an embed from the msg and send it
-async function send_embed(msg: string, dest: string, client: Client) {
+async function send_embed(msg: string, title: string, dest: string, client: Client) {
   let msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
+    .setTitle(title)
     .attachFile("./resources/acm-logo-thicc.png")
-    .setTitle("ACM Announcement")
-    .setAuthor("Super Intelligent Gnome")
+    .setAuthor("ACM Announcement")
     .setThumbnail("attachment://acm-logo-thicc.png")
 
     .addField("[@everyone][announcement]", msg);
@@ -38,9 +37,9 @@ async function send_embed(msg: string, dest: string, client: Client) {
 /* Sends a quick and dirty double check message, need a check in the main loop to see
 *  if the embed gets the proper react to send
 */
-export async function send_checkup(discord_message: Message, targets: string, message: string, client: Client)  { 
+export async function send_checkup(discord_message: Message, targets: string, toSend: string, title: string,  client: Client)  { 
   // Should only ever be a Message, not a Message array because we only send one message
-  const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(message, targets));
+  const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(toSend, title, targets));
   
   const NUM_TO_APPROVE = 2;
   const NUM_TO_DISAPPROVE = 1;
@@ -58,8 +57,6 @@ export async function send_checkup(discord_message: Message, targets: string, me
   } else {
     await checkupMsg[0].react(YUP_EMOJI).then(() => checkupMsg[0].react(NOPE_EMOJI));
   }
-    
-  
   
   if (checkupMsg instanceof Message) {
     const collector = checkupMsg.createReactionCollector(filter, {time: 150000})
@@ -78,7 +75,8 @@ export async function send_checkup(discord_message: Message, targets: string, me
         if (good_count >= NUM_TO_APPROVE + 1) {
           // We are ready to send
           checkupMsg.channel.send("Enough people have confirmed, sending...");
-          send_embed(message, targets, client);
+          send_to_channel(targets, "@everyone", client);
+          send_embed(toSend, title, targets, client);
           collector.stop(); // Keeps from multi sending, calls on(end()...
         } else {
           checkupMsg.channel.send("Need " + (NUM_TO_APPROVE - good_count + 1).toString() +" more to send");
