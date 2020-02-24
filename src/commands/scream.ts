@@ -6,10 +6,12 @@ import { send_checkup } from "../send";
 const SERVERS: string = "EVERYONE"; 
 
 function cmd_scream(message: Message, client: Client) {
-    var toSend: string = message.content.substring(8);
-    console.log(toSend);
-    if (toSend.length >= 1) {
-        send_checkup(message, SERVERS, toSend, client);
+    const index: number = message.content.indexOf("\n");
+    const title: string = message.content.substring(8, index);
+    const toSend: string = message.content.substring(index+1);
+
+    if (toSend.length && title.length) {
+        send_checkup(message, SERVERS, toSend, title, client);
     }
 }
 

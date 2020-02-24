@@ -4,10 +4,13 @@ import { send_checkup } from "../send";
 // Repeats the message back to you.
 
 function cmd_repeat(message: Message, client: Client) {
-    var toSend: string = message.content.substring(8);
+    const index: number = message.content.indexOf("\n");
+    const title: string = message.content.substring(8, index);
+    const toSend: string = message.content.substring(index+1);
+
     console.log(toSend);
     if (toSend.length >= 1) {
-        send_checkup(message, "HERE", toSend, client);
+        send_checkup(message, "HERE", toSend, title, client);
     }
 }
 
