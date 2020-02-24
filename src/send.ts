@@ -16,7 +16,7 @@ function build_test_embed(msg: string, dest: string) {
     .addField("[at_everyone][announcement]", msg)
     .addField("Destination:", dest)
     .addField("What will be removed:", "'- DOUBLE CHECK'\nThe Destination Field\n[at_everyone] will become @")
-    .addField("Controls", "You need at least 2 👌 to send the message, otherwise it will timeout and will not be sent.")
+    .addField("Controls", "You need at least 3 👌 to send the message, besides the creator, otherwise it will timeout and will not be sent. You can react with 🚫 to cancel early.")
     .setTimestamp()
     .setFooter("If you have any questions, talk to Gavin Lewis.", "attachment://acm-logo-thicc.png");
 }
@@ -42,38 +42,63 @@ export async function send_checkup(discord_message: Message, targets: string, me
   // Should only ever be a Message, not a Message array because we only send one message
   const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(message, targets));
   
-  if (checkupMsg instanceof Message) {
-    checkupMsg.react('👌'); 
-  } else {
-    checkupMsg[0].react('👌');
-  }
-    
-  const numToApprove = 2;
+  const NUM_TO_APPROVE = 2;
+  const NUM_TO_DISAPPROVE = 1;
+  const YUP_EMOJI = '👌';
+  const NOPE_EMOJI = '🚫';
 
   const filter = (reaction: MessageReaction, user: User) => {
-    return reaction.emoji.name === '👌' && user.id !== discord_message.author.id;
+    // Only other users can approve, but the creator can deny
+    return (reaction.emoji.name === YUP_EMOJI && user.id !== discord_message.author.id) || reaction.emoji.name === NOPE_EMOJI;
   }
+
+  if (checkupMsg instanceof Message) {
+    // If we have a single message
+    await checkupMsg.react(YUP_EMOJI).then(() => checkupMsg.react(NOPE_EMOJI));
+  } else {
+    await checkupMsg[0].react(YUP_EMOJI).then(() => checkupMsg[0].react(NOPE_EMOJI));
+  }
+    
+  
   
   if (checkupMsg instanceof Message) {
-    const collector = checkupMsg.createReactionCollector(filter, {time:75000})
+    const collector = checkupMsg.createReactionCollector(filter, {time: 150000})
 
     collector.on('collect', (reaction, reactionCollector) => {
-      const count: number = reactionCollector.collected.array()[0].count;
-      if (count >= numToApprove+1) {
-        checkupMsg.channel.send("Enough people have confirmed, sending...");
-        send_embed(message, targets, client);
-        collector.stop(); // Keeps from multi sending, calls on(end()...
-      } else {
-        checkupMsg.channel.send("Need " + (numToApprove - count + 1).toString() +" more to send");
+      if (reactionCollector.collected.get(NOPE_EMOJI)) {
+        // If we collected a Nope
+        const bad_count: number = reactionCollector.collected.get(NOPE_EMOJI).count;
+        if (bad_count >= 2) {
+          // Someone said no
+          collector.stop();
+        }
+      } else if (reactionCollector.collected.get(YUP_EMOJI)) {
+        // If we collected a yup
+        const good_count: number = reactionCollector.collected.get(YUP_EMOJI).count;
+        if (good_count >= NUM_TO_APPROVE + 1) {
+          // We are ready to send
+          checkupMsg.channel.send("Enough people have confirmed, sending...");
+          send_embed(message, targets, client);
+          collector.stop(); // Keeps from multi sending, calls on(end()...
+        } else {
+          checkupMsg.channel.send("Need " + (NUM_TO_APPROVE - good_count + 1).toString() +" more to send");
+        }
       }
     });
 
     collector.on('end', (collected => {
-      if (collected.array()[0].count < numToApprove+1) {
-        checkupMsg.channel.send("There was not enough feedback, get more reactions.");
-      }
+      if (collected.get(NOPE_EMOJI)) {
+        // Collected a nope
+        if (collected.get(NOPE_EMOJI).count >= NUM_TO_DISAPPROVE + 1) {
+          checkupMsg.channel.send("Someone said no, cancelling sending.");
+        }
+      } else if (collected.get(YUP_EMOJI)) {
+        // We collected a yup
+        if (collected.get(YUP_EMOJI).count < NUM_TO_APPROVE + 1) {
+          checkupMsg.channel.send("There was not enough feedback, get more reactions.");
+        }
+      } 
     }));
-
   } else {
     checkupMsg[0].awaitReactions(filter);
   }
