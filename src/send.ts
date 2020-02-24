@@ -1,5 +1,5 @@
 import { Client, Guild, Message, TextChannel, RichEmbed, MessageReaction, User } from "discord.js";
-let server_info = require("../server_info.json");
+let serverInfo = require("../server_info.json");
 
 /* Build an embed from the given information, intended to use as a check
 *  before sending a message.
@@ -145,22 +145,22 @@ export function send_to_channel(targets: string, message: string | RichEmbed, cl
 
     filteredTargets.forEach( function(community: string) {
       if (community) {
-        try {
-          let guild: Guild = client.guilds.find(guild => guild.name === server_info[community].guild);
-          if (guild) {
-            let channel: TextChannel = guild.channels.find(channel => channel.name === server_info[community].channel) as TextChannel;
-            if (channel) {
-              channel.send(message);
-            } else {
-              console.log("Channel: " + server_info[community].channel + " not found");
-            }
+        let guild: Guild = client.guilds.find(guild => guild.name === serverInfo[community].guild);
+        if (guild) {
+          let channel: TextChannel = guild.channels.find(channel => channel.name === serverInfo[community].channel) as TextChannel;
+          if (channel) {
+            channel.send(message);
           } else {
-            console.log("Guild: " + server_info[community].guild + " not found");
+            console.log("Channel: " + serverInfo[community].channel + " not found");
           }
+        } else {
+          console.log(
+            "Channel: " + serverInfo[community].channel + " not found"
+          );
         }
-        catch (err) {
-          console.log("Error sending the message.");
-        }
+      } else {
+        console.log("Guild: " + serverInfo[community].guild + " not found");
       }
-    })
-  };
+    }
+  });
+}
