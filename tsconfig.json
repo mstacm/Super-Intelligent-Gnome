@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es5", 
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "CommonJS",
     "sourceMap": true,
     "rootDir": "./src",
-    "outDir": "./out",
-    "moduleResolution": "node",
+    "outDir": "./build",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strict": true,
     "strictNullChecks": false,
     "lib": ["es2015"]

@@ -1,33 +1,39 @@
 {
-  "name": "typescript_discord",
-  "description": "fadfs",
+  "name": "super_intelligent_gnome",
+  "description": "Bot to unify Missouri S&T ACM Discord servers",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "src/main.ts",
   "scripts": {
-    "start": "node out/main.js",
-    "dev": "nodemon src/main.ts",
-    "pull": "git pull;npm install",
+    "run:prod": "node ./build/main.js",
+    "start": "nodemon src/main.ts",
+    "pull": "git pull && npm install",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@types/node": "^12.12.8",
-    "discord.js": "^11.5.1",
-    "googleapis": "^45.0.0",
-    "nodemon": "^1.19.4",
-    "ts-node": "^3.3.0",
-    "typescript": "^2.9.2",
-    "mysql": "^2.10.2"
+    "discord.js": "^11.5.1"
   },
-  "devDependencies": {},
-  "keywords": [
-    "urmom"
-  ],
+  "devDependencies": {
+    "@types/node": "^12.12.8",
+    "@typescript-eslint/eslint-plugin": "^2.21.0",
+    "@typescript-eslint/parser": "^2.21.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "nodemon": "^1.19.4",
+    "prettier": "^1.19.1",
+    "ts-node": "^3.3.0",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^2.9.2"
+  },
+  "keywords": [],
   "author": "Gavin Lewis",
-  "license": "ISC",
+  "license": "MIT",
   "nodemonConfig": {
     "ignore": [
-      "out/",
+      "build/",
       "reminders.json"
     ]
   }
