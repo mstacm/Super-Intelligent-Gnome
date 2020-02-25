@@ -37,7 +37,17 @@ async function send_embed(msg: string, title: string, dest: string, client: Clie
 /* Sends a quick and dirty double check message, need a check in the main loop to see
 *  if the embed gets the proper react to send
 */
-export async function send_checkup(discord_message: Message, targets: string, toSend: string, title: string,  client: Client)  { 
+export async function send_checkup(discord_message: Message, targets: string, toSend: string, title: string,  client: Client)  {
+  // Embeds can only be so long
+  if (toSend.length >= 1024) {
+    discord_message.channel.send("Message must be less than 1024 characters.");
+    return;
+  }
+  if (title.length >= 256) {
+    discord_message.channel.send("Title must be less than 256 characters.");
+    return;
+  }
+
   // Should only ever be a Message, not a Message array because we only send one message
   const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(toSend, title, targets));
   
