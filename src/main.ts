@@ -54,7 +54,7 @@ client.on("message", (message: Message) => {
   });
   if (!parsed.success) return;
 
-  console.log(parsed);
+  // console.log(parsed);
 
   if (
     message.member.roles.find(role => role.name === "Officers") &&
@@ -73,6 +73,10 @@ client.on("message", (message: Message) => {
       message.channel.send("Its not party time. ");
     } else if (parsed.command === "poll") {
       cmdPoll(message, parsed.arguments, client);
+    } else if (parsed.command === "repeat") {
+      cmdRepeat(message, client);
+    } else if (parsed.command === "scream") {
+      cmdScream(message, client);
     } else {
       message.channel.send(`Unknown command: ${parsed.command}`);
     }
