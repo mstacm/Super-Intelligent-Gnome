@@ -15,6 +15,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint"],
   rules: {
-    "import/prefer-default-export": 0
+    "import/prefer-default-export": 0,
+    "no-restricted-syntax": 0
   }
 };

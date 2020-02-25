@@ -162,77 +162,83 @@ export async function sendCheckup(
 /*  Will send the contents of an approved embed to the intended destination
  */
 export async function sendToChannel(
-  targets: string,
+  targets: string | TextChannel,
   message: string | RichEmbed,
   client: Client
 ): Promise<Message[]> {
   // targets: A string that looks like |sec|web|
   // message: The exact string you want sent
-  return new Promise<Message[]>(async (accept: any, reject: any) => {
-    const messages: Message[] = [];
+  let messages: Message[] = [];
 
-    let filteredTargets: string[] = [];
+  if (targets instanceof TextChannel) {
+    const chan: TextChannel = targets as TextChannel;
+    const msg: Message | Message[] = await chan.send(message);
+    if (msg instanceof Message) messages.push(msg);
+    else messages.concat(msg);
+    return messages;
+  }
 
-    if (targets.indexOf("EVERYONE") === -1) {
-      let targetDiscords: string[] = targets
-        .toLocaleUpperCase()
-        .split("|")
-        .map(item => item.trim());
+  let filteredTargets: string[] = [];
 
-      targetDiscords.filter((item: string, index: number) => {
-        if (targetDiscords.indexOf(item) === index) filteredTargets.push(item);
-      });
-    } else {
-      // Add all communities to the targets if everyone was there or no one was
-      filteredTargets = [
-        "GEN",
-        "SEC",
-        "WEB",
-        "GAME",
-        "COMP",
-        "W",
-        "HACK",
-        "DATA",
-        "CDT"
-      ];
-    }
+  if (targets.indexOf("EVERYONE") === -1) {
+    let targetDiscords: string[] = targets
+      .toLocaleUpperCase()
+      .split("|")
+      .map(item => item.trim());
 
-    // TODO: Add a check back to the user in an embed to make sure all info is correct before sending
+    await targetDiscords.filter((item: string, index: number) => {
+      if (targetDiscords.indexOf(item) === index) filteredTargets.push(item);
+    });
+  } else {
+    // Add all communities to the targets if everyone was there or no one was
+    filteredTargets = [
+      "GEN",
+      "SEC",
+      "WEB",
+      "GAME",
+      "COMP",
+      "W",
+      "HACK",
+      "DATA",
+      "CDT"
+    ];
+  }
 
-    console.log(filteredTargets);
+  // TODO: Add a check back to the user in an embed to make sure all info is correct before sending
 
-    filteredTargets.forEach(async function(community: string) {
-      if (community) {
-        try {
-          const guild: Guild = client.guilds.find(
-            gui => gui.name === serverInfo[community].guild
-          );
-          if (guild) {
-            const channel: TextChannel = guild.channels.find(
-              chan => chan.name === serverInfo[community].channel
-            ) as TextChannel;
-            if (channel) {
-              console.log("Simulate sending");
-              console.log(message);
-              const msg: Message | Message[] = await channel.send(message);
-              if (msg instanceof Message) messages.push(msg);
-              else messages.concat(msg);
+  console.log(filteredTargets);
+
+  for (const community of filteredTargets) {
+    if (community) {
+      try {
+        let guild: Guild = client.guilds.find(
+          guild => guild.name === serverInfo[community].guild
+        );
+        if (guild) {
+          const channel: TextChannel = guild.channels.find(
+            chan => chan.name === serverInfo[community].channel
+          ) as TextChannel;
+          if (channel) {
+            console.log("Sending");
+            // console.log(message);
+            const msg: Message | Message[] = await channel.send(message);
+            if (msg instanceof Message) {
+              messages.push(msg);
             } else {
-              console.log(
-                `Channel: ${serverInfo[community].channel} not found`
-              );
-              reject();
+              messages.concat(msg);
             }
           } else {
-            console.log(`Guild: ${serverInfo[community].guild} not found`);
-            reject();
+            console.log(
+              "Channel: " + serverInfo[community].channel + " not found"
+            );
           }
-        } catch (err) {
-          console.log("Error sending the message.");
-          reject();
+        } else {
+          console.log("Guild: " + serverInfo[community].guild + " not found");
         }
+      } catch (err) {
+        console.log("Error sending the message.");
       }
-    });
-    accept(messages);
-  });
+    }
+  }
+  return messages;
 }

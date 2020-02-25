@@ -48,7 +48,10 @@ client.on("ready", () => {
 
 client.on("message", (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
-  const parsed = parser.parse(message, prefix);
+  const parsed = parser.parse(message, prefix, {
+    allowBots: false,
+    allowSelf: false
+  });
   if (!parsed.success) return;
 
   console.log(parsed);
