@@ -1,8 +1,9 @@
-import Discord from "discord.js";
-// npm run dev
+import Discord, { Message } from "discord.js";
+import parser from "discord-command-parser";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
+import { cmdPoll } from "./commands/poll";
 import { cmdHelp } from "./commands/help";
 import { cmdRemind } from "./commands/remind";
 import { cmdScream } from "./commands/scream";
@@ -21,6 +22,7 @@ interface CONFIG {
   prefix: string;
   token: string;
 }
+const prefix = "?";
 
 const config: CONFIG = require("./config.json");
 
@@ -44,41 +46,32 @@ client.on("ready", () => {
   // send_to_channel("CDT", "This is a test");
 });
 
-client.on("message", msg => {
+client.on("message", (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
-  if (msg.author.bot) return;
+  const parsed = parser.parse(message, prefix);
+  if (!parsed.success) return;
 
-  const args: string[] = msg.content.split(" ", 4);
-  const cmdSwitch: string = args[0].charAt(0);
-
-  console.log(args);
-
-  // Keep for testing
-  if (msg.content === "ping") {
-    cmdPing(msg);
-  }
+  console.log(parsed);
 
   if (
-    cmdSwitch === "?" &&
-    msg.member.roles.find(role => role.name === "Officers") &&
-    msg.member.guild.name === "ACM General"
+    message.member.roles.find(role => role.name === "Officers") &&
+    message.member.guild.name === "ACM General"
   ) {
-    if (msg.content === "?tada") {
-      msg.channel.send("Its not party time. ");
+    // Keep for testing
+    if (message.content === "ping") {
+      cmdPing(message);
     }
 
-    if (cmdSwitch === "?") {
-      if (args[0] === "?help") {
-        cmdHelp(msg);
-      } else if (args[0] === "?remind") {
-        cmdRemind(msg, args, client);
-      } else if (args[0] === "?scream") {
-        cmdScream(msg, client);
-      } else if (args[0] === "?repeat") {
-        cmdRepeat(msg, client);
-      } else {
-        msg.channel.send(`Unkown command: ${args[0]}`);
-      }
+    if (parsed.command === "help") {
+      cmdHelp(message);
+    } else if (parsed.command === "remind") {
+      cmdRemind(message, parsed.arguments, client);
+    } else if (parsed.command === "tada") {
+      message.channel.send("Its not party time. ");
+    } else if (parsed.command === "poll") {
+      cmdPoll(message, parsed.arguments, client);
+    } else {
+      message.channel.send(`Unknown command: ${parsed.command}`);
     }
   }
 });

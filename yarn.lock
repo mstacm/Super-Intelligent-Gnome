@@ -545,6 +545,11 @@ diff@^3.1.0:
   resolved "https://registry.yarnpkg.com/diff/-/diff-3.5.0.tgz#800c0dd1e0a8bfbc95835c202ad220fe317e5a12"
   integrity sha512-A46qtFgd+g7pDZinpnwiRJtxbC1hpgf0uzP3iG89scHk0AUC7A1TGxf5OiiOUv/JMZR8GOt8hL900hV0bOy5xA==
 
+discord-command-parser@^1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/discord-command-parser/-/discord-command-parser-1.3.3.tgz#45ce936eecba467174f2dae97f2b4f0b27cad87f"
+  integrity sha512-JsRAddGex8zlBjuUZE92dyrGzZd+OEGVJbrYpTozxgpwztwjhtJKcMorC96+5ZA0XmUGQ3I/EDGx0zJatbmYvw==
+
 discord.js@^11.5.1:
   version "11.5.1"
   resolved "https://registry.yarnpkg.com/discord.js/-/discord.js-11.5.1.tgz#910fb9f6410328581093e044cafb661783a4d9e8"
