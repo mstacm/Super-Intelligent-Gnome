@@ -4,11 +4,11 @@ let server_info = require("../server_info.json");
 /* Build an embed from the given information, intended to use as a check
 *  before sending a message.
 */
-function build_test_embed(msg: string, title: string, dest: string) {
-  return new RichEmbed()
+function build_test_embed(msg: string, title: string, dest: string, discordMessage: Message) {
+  const msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
-    .attachFile("./resources/acm-logo-thicc.png")
+    
     .setAuthor("ACM Announcement - DOUBLE CHECK")
     .setThumbnail("attachment://acm-logo-thicc.png")
     
@@ -18,11 +18,16 @@ function build_test_embed(msg: string, title: string, dest: string) {
     .addField("Controls", "You need at least 3 👌 to send the message, besides the creator, otherwise it will timeout and will not be sent. You can react with 🚫 to cancel early.")
     .setTimestamp()
     .setFooter("If you have any questions, talk to Gavin Lewis.", "attachment://acm-logo-thicc.png");
+
+  if (discordMessage.attachments) {
+    msg_embed.attachFile(discordMessage.attachments.array()[0].url);
+  }
+  return msg_embed;
 }
 
 // Generate an embed from the msg and send it
-async function send_embed(msg: string, title: string, dest: string, client: Client) {
-  let msg_embed: RichEmbed = new RichEmbed()
+async function send_embed(msg: string, title: string, dest: string, client: Client, discordMessage: Message) {
+  const msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
     .attachFile("./resources/acm-logo-thicc.png")
@@ -31,6 +36,9 @@ async function send_embed(msg: string, title: string, dest: string, client: Clie
 
     .addField("[@everyone][announcement]", msg);
 
+    if (discordMessage.attachments) {
+      msg_embed.attachFile(discordMessage.attachments.array()[0].url);
+    }
   send_to_channel(dest, msg_embed, client);
 }
 
@@ -49,7 +57,7 @@ export async function send_checkup(discord_message: Message, targets: string, to
   }
 
   // Should only ever be a Message, not a Message array because we only send one message
-  const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(toSend, title, targets));
+  const checkupMsg: Message | Message[] = await discord_message.channel.send(build_test_embed(toSend, title, targets, discord_message));
   
   const NUM_TO_APPROVE = 2;
   const NUM_TO_DISAPPROVE = 1;
@@ -87,10 +95,10 @@ export async function send_checkup(discord_message: Message, targets: string, to
           // We are ready to send
           checkupMsg.channel.send("Enough people have confirmed, sending...");
           send_to_channel(targets, "@everyone", client);
-          send_embed(toSend, title, targets, client);
+          send_embed(toSend, title, targets, client, discord_message);
           collector.stop(); // Keeps from multi sending, calls on(end()...
         } else {
-          checkupMsg.channel.send("Need " + (NUM_TO_APPROVE - good_count + 1).toString() +" more to send");
+          checkupMsg.channel.send("Need " + (NUM_TO_APPROVE - good_count + 1).toString() + " more to send");
         }
       }
     });

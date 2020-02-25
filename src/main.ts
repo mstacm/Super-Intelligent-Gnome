@@ -33,7 +33,7 @@ client.on('ready', () => {
 
   client.user.setPresence(
     { game: {
-      name: "with your feelings"
+      name: "with Typescript"
     },
     status: "online"});
   
@@ -59,7 +59,7 @@ client.on('message', msg => {
     cmd_ping(msg);
   }
 
-  if (cmdSwitch === '?' && msg.member.roles.find(role => role.name === "Officers") && msg.member.guild.name === "ACM General") {
+  if (cmdSwitch === '?' && msg.member.roles.find(role => role.name === "Officers") && msg.member.guild.name === "ACM CCDC") {
     
     if (args[0] === "?help") {
       cmd_help(msg);
