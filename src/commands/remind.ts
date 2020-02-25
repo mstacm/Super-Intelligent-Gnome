@@ -7,7 +7,6 @@ let helpMessage: RichEmbed = new RichEmbed()
   .setTitle("?remind Help")
   .setAuthor("Gnome");
 
-
 function remindPush(msg: Message, args: string[], client: Client) {
   // This is for pushing reminders to the masses
   // Set some flags so code isn't repeated
@@ -40,15 +39,15 @@ function remindPush(msg: Message, args: string[], client: Client) {
       toSend = reminder.get_string();
       console.log("Going to toSend");
     } else {
-        console.log("No idea which reminder to grab");
-        sendMsg = false;
+      console.log("No idea which reminder to grab");
+      sendMsg = false;
     }
 
     // Make sure user picked a valid reminder
     if (sendMsg) {
-        // Used to straigh send the messge, now we do a check
-        // send_to_channel(communitiesArr[0].trim(), toSend, client);
-        send_checkup(msg, communitiesArr[0].trim(), toSend, client);
+      // Used to straigh send the messge, now we do a check
+      // send_to_channel(communitiesArr[0].trim(), toSend, client);
+      sendCheckup(msg, communitiesArr[0].trim(), toSend, client);
     }
   } else {
     console.log("No idea which reminder to grab");
@@ -171,4 +170,3 @@ function cmdRemind(message: Message, args: string[], client: Client) {
 }
 
 export { cmdRemind };
-

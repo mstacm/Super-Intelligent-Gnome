@@ -13,7 +13,7 @@ function getOptionsString(options: any) {
 
 async function cmdPoll(message: Message, args: string[], client: Client) {
   // ?poll target "Question" emoji1 "response meaning" emoji2 "xxxxx"...
-  let target = args[0];
+  const target = args[0];
 
   const options: any = {};
   for (let i = 2; i < args.length; i += 2) {
