@@ -14,5 +14,7 @@ module.exports = {
     sourceType: "module"
   },
   plugins: ["@typescript-eslint"],
-  rules: {}
+  rules: {
+    "import/prefer-default-export": 0
+  }
 };
