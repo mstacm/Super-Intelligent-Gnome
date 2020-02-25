@@ -30,6 +30,12 @@ let server_info = require("../server_info.json");
 
 client.on('ready', () => {
   console.log('Logged in as ' + client.user.tag);
+
+  client.user.setPresence(
+    { game: {
+      name: "with your feelings"
+    },
+    status: "online"});
   
   // Example for sending messages at a set time.
   //let interval = setInterval(function() { console.log("Hello"); }, 150);
@@ -46,7 +52,6 @@ client.on('message', msg => {
 
   var args:string[] = msg.content.split(' ', 4);
   var cmdSwitch:string = args[0].charAt(0);
-  console.log(msg.content);
   console.log(args);
 
   // Keep for testing
