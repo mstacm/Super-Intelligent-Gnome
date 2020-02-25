@@ -69,7 +69,8 @@ export async function send_checkup(discord_message: Message, targets: string, to
           // Someone said no
           collector.stop();
         }
-      } else if (reactionCollector.collected.get(YUP_EMOJI)) {
+      }
+      if (reactionCollector.collected.get(YUP_EMOJI)) {
         // If we collected a yup
         const good_count: number = reactionCollector.collected.get(YUP_EMOJI).count;
         if (good_count >= NUM_TO_APPROVE + 1) {

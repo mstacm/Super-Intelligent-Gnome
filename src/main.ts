@@ -46,7 +46,7 @@ client.on('message', msg => {
 
   var args:string[] = msg.content.split(' ', 4);
   var cmdSwitch:string = args[0].charAt(0);
-
+  console.log(msg.content);
   console.log(args);
 
   // Keep for testing
