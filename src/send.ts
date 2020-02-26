@@ -97,8 +97,13 @@ export async function sendToChannel(
 /* Build an embed from the given information, intended to use as a check
  *  before sending a message.
  */
-function buildTestEmbed(msg: string, title: string, dest: string discordMessage: Message) {
-  const msg_embed: RichEmbed =  new RichEmbed()
+function buildTestEmbed(
+  msg: string,
+  title: string,
+  dest: string,
+  discordMessage: Message
+) {
+  const msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .attachFile("./resources/acm-logo-thicc.png")
     .setTitle("ACM Announcement - DOUBLE CHECK")
@@ -250,4 +255,3 @@ export async function sendCheckup(
     checkupMsg[0].awaitReactions(filter);
   }
 }
-
