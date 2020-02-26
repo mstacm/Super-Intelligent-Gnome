@@ -10,17 +10,17 @@ function build_test_embed(msg: string, title: string, dest: string, discordMessa
     .setTitle(title)
     
     .setAuthor("ACM Announcement - DOUBLE CHECK")
-    .setThumbnail("attachment://acm-logo-thicc.png")
+    .setThumbnail("https://cdn.mstacm.org/static/acm.png")
     
     .addField("[at_everyone][announcement]", msg)
     .addField("Destination:", dest)
     .addField("What will be removed:", "'- DOUBLE CHECK'\nThe Destination Field\n[at_everyone] will become @")
     .addField("Controls", "You need at least 3 👌 to send the message, besides the creator, otherwise it will timeout and will not be sent. You can react with 🚫 to cancel early.")
     .setTimestamp()
-    .setFooter("If you have any questions, talk to Gavin Lewis.", "attachment://acm-logo-thicc.png");
+    .setFooter("If you have any questions, talk to Gavin Lewis.", "https://cdn.mstacm.org/static/acm.png");
 
-  if (discordMessage.attachments) {
-    msg_embed.attachFile(discordMessage.attachments.array()[0].url);
+  if (discordMessage.attachments.size > 0) {
+    msg_embed.setImage(discordMessage.attachments.array()[0].url);
   }
   return msg_embed;
 }
@@ -30,13 +30,13 @@ async function send_embed(msg: string, title: string, dest: string, client: Clie
   const msg_embed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
-    .attachFile("./resources/acm-logo-thicc.png")
+    .attachFile("https://cdn.mstacm.org/static/acm.png")
     .setAuthor("ACM Announcement")
-    .setThumbnail("attachment://acm-logo-thicc.png")
+    .setThumbnail("https://cdn.mstacm.org/static/acm.png")
 
     .addField("[@everyone][announcement]", msg);
 
-    if (discordMessage.attachments) {
+    if (discordMessage.attachments.size > 0) {
       msg_embed.attachFile(discordMessage.attachments.array()[0].url);
     }
   send_to_channel(dest, msg_embed, client);
