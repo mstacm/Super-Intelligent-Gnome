@@ -47,7 +47,7 @@ function remindPush(msg: Message, args: string[], client: Client) {
     if (sendMsg) {
       // Used to straigh send the messge, now we do a check
       // send_to_channel(communitiesArr[0].trim(), toSend, client);
-      sendCheckup(msg, communitiesArr[0].trim(), toSend, client);
+      sendCheckup(msg, communitiesArr[0].trim(), toSend, "Reminder", client);
     }
   } else {
     console.log("No idea which reminder to grab");
