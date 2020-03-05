@@ -6,7 +6,6 @@ import { logBot } from "./logging_config";
 import { cmdPing } from "./commands/ping";
 import { cmdPoll } from "./commands/poll";
 import { cmdHelp } from "./commands/help";
-import { cmdRemind } from "./commands/remind";
 import { cmdScream } from "./commands/scream";
 import { cmdRepeat } from "./commands/repeat";
 
@@ -64,8 +63,6 @@ client.on("message", (message: Message) => {
 
     if (parsed.command === "help") {
       cmdHelp(message);
-    } else if (parsed.command === "remind") {
-      cmdRemind(message, parsed.arguments, client);
     } else if (parsed.command === "tada") {
       message.channel.send("Its not party time. ");
     } else if (parsed.command === "poll") {
