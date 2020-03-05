@@ -1,6 +1,6 @@
 import Discord, { Message } from "discord.js";
-import { logBot } from "./logging_config";
 import parser, { ParsedMessage } from "discord-command-parser";
+import { logBot, invalidCommand } from "./logging_config";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -41,10 +41,6 @@ client.on("ready", () => {
   });
 });
 
-function invalidCommand(parsed: ParsedMessage) {
-  logBot.info(`An invalid command, "${parsed.command}" was sent and rejected`);
-}
-
 client.on("message", async (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
   const parsed = parser.parse(message, prefix, {
@@ -59,33 +55,19 @@ client.on("message", async (message: Message) => {
     message.member.guild.name === "ACM General"
   ) {
     if (message.content === "ping") {
+      logBot.debug("Ping command received.");
       cmdPing(message);
     }
 
     if (parsed.command === "help") {
+      logBot.debug("Help command received.");
       cmdHelp(message);
     } else if (parsed.command === "poll") {
-      try {
-        validatePoll(parsed);
-        await cmdPoll(parsed, client);
-      } catch (err) {
-        if (err instanceof ValidationError) {
-          message.reply(err.message);
-          invalidCommand(parsed);
-        }
-      }
+      await cmdPoll(parsed, client);
     } else if (parsed.command === "repeat") {
       cmdRepeat(parsed);
     } else if (parsed.command === "scream") {
-      try {
-        validateScream(parsed);
-        cmdScream(parsed, client);
-      } catch (err) {
-        if (err instanceof ValidationError) {
-          message.reply(err.message);
-          invalidCommand(parsed);
-        }
-      }
+      cmdScream(parsed, client);
     } else {
       message.reply(`${parsed.command} is not a command`);
       invalidCommand(parsed);
