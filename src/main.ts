@@ -55,9 +55,8 @@ client.on("message", async (message: Message) => {
   if (!parsed.success) return;
 
   if (
-    true ||
-    (message.member.roles.find(role => role.name === "Officers") &&
-      message.member.guild.name === "ACM General")
+    message.member.roles.find(role => role.name === "Officers") &&
+    message.member.guild.name === "ACM General"
   ) {
     if (message.content === "ping") {
       cmdPing(message);
