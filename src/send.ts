@@ -7,6 +7,7 @@ import {
   MessageReaction,
   User
 } from "discord.js";
+import { logBot } from "./logging_config";
 
 const serverInfo = require("./server_info.json");
 
@@ -32,7 +33,7 @@ export async function sendToChannel(
   let filteredTargets: string[] = [];
 
   if (targets.indexOf("EVERYONE") === -1) {
-    let targetDiscords: string[] = targets
+    const targetDiscords: string[] = targets
       .toLocaleUpperCase()
       .split("|")
       .map(item => item.trim());
@@ -55,14 +56,11 @@ export async function sendToChannel(
     ];
   }
 
-  // TODO: Add a check back to the user in an embed to make sure all info is correct before sending
-
-  console.log(filteredTargets);
-
+  logBot.debug("Beginning to send.");
   for (const community of filteredTargets) {
     if (community) {
       try {
-        let guild: Guild = client.guilds.find(
+        const guild: Guild = client.guilds.find(
           guild => guild.name === serverInfo[community].guild
         );
         if (guild) {
@@ -70,8 +68,8 @@ export async function sendToChannel(
             chan => chan.name === serverInfo[community].channel
           ) as TextChannel;
           if (channel) {
-            console.log("Sending");
-            // console.log(message);
+            logBot.debug(() => `Sending to ${community}`);
+
             const msg: Message | Message[] = await channel.send(message);
             if (msg instanceof Message) {
               messages.push(msg);
@@ -79,15 +77,19 @@ export async function sendToChannel(
               messages.concat(msg);
             }
           } else {
-            console.log(
-              "Channel: " + serverInfo[community].channel + " not found"
+            logBot.error(
+              () => `Channel: ${serverInfo[community].channel} not found`,
+              new Error()
             );
           }
         } else {
-          console.log("Guild: " + serverInfo[community].guild + " not found");
+          logBot.error(
+            `Guild: ${serverInfo[community].guild} not found`,
+            new Error()
+          );
         }
       } catch (err) {
-        console.log("Error sending the message.");
+        logBot.error("Error sending the message.", err);
       }
     }
   }
@@ -103,9 +105,9 @@ function buildTestEmbed(
   dest: string,
   discordMessage: Message
 ) {
-  const msg_embed: RichEmbed = new RichEmbed()
+  logBot.debug("Building test embed.");
+  const msgEmbed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
-    .attachFile("./resources/acm-logo-thicc.png")
     .setTitle("ACM Announcement - DOUBLE CHECK")
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("https://cdn.mstacm.org/static/acm.png")
@@ -126,9 +128,9 @@ function buildTestEmbed(
     );
 
   if (discordMessage.attachments.size > 0) {
-    msg_embed.setImage(discordMessage.attachments.array()[0].url);
+    msgEmbed.setImage(discordMessage.attachments.array()[0].url);
   }
-  return msg_embed;
+  return msgEmbed;
 }
 
 // Generate an embed from the msg and send it
@@ -139,26 +141,28 @@ async function sendEmbed(
   client: Client,
   discordMessage: Message
 ) {
-  let msg_embed: RichEmbed = new RichEmbed()
+  logBot.debug("Creating actual embed for message.");
+
+  const msgEmbed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
-    .attachFile("https://cdn.mstacm.org/static/acm.png")
     .setAuthor("ACM Announcement")
     .setThumbnail("https://cdn.mstacm.org/static/acm.png")
 
     .addField("[@everyone][announcement]", msg);
 
   if (discordMessage.attachments.size > 0) {
-    msg_embed.attachFile(discordMessage.attachments.array()[0].url);
+    msgEmbed.attachFile(discordMessage.attachments.array()[0].url);
   }
-  sendToChannel(dest, msg_embed, client);
+  logBot.debug("Message embed successfully created.");
+  sendToChannel(dest, msgEmbed, client);
 }
 
 /* Sends a quick and dirty double check message, need a check in the main loop to see
  *  if the embed gets the proper react to send
  */
 export async function sendCheckup(
-  discord_message: Message,
+  discordMessage: Message,
   targets: string,
   toSend: string,
   title: string,
@@ -166,16 +170,18 @@ export async function sendCheckup(
 ) {
   // Embeds can only be so long
   if (toSend.length >= 1024) {
-    discord_message.channel.send("Message must be less than 1024 characters.");
+    logBot.debug("Message was over 1024 characters.");
+    discordMessage.channel.send("Message must be less than 1024 characters.");
     return;
   }
   if (title.length >= 256) {
-    discord_message.channel.send("Title must be less than 256 characters.");
+    logBot.debug("Title was over 256 characters.");
+    discordMessage.channel.send("Title must be less than 256 characters.");
     return;
   }
   // Should only ever be a Message, not a Message array because we only send one message
-  const checkupMsg: Message | Message[] = await discord_message.channel.send(
-    buildTestEmbed(toSend, title, targets, discord_message)
+  const checkupMsg: Message | Message[] = await discordMessage.channel.send(
+    buildTestEmbed(toSend, title, targets, discordMessage)
   );
 
   const NUM_TO_APPROVE = 2;
@@ -187,7 +193,7 @@ export async function sendCheckup(
     // Only other users can approve, but the creator can deny
     return (
       (reaction.emoji.name === YUP_EMOJI &&
-        user.id !== discord_message.author.id) ||
+        user.id !== discordMessage.author.id) ||
       reaction.emoji.name === NOPE_EMOJI
     );
   };
@@ -209,28 +215,26 @@ export async function sendCheckup(
     collector.on("collect", (reaction, reactionCollector) => {
       if (reactionCollector.collected.get(NOPE_EMOJI)) {
         // If we collected a Nope
-        const bad_count: number = reactionCollector.collected.get(NOPE_EMOJI)
+        const badCount: number = reactionCollector.collected.get(NOPE_EMOJI)
           .count;
-        if (bad_count >= 2) {
+        if (badCount >= 2) {
           // Someone said no
           collector.stop();
         }
       }
       if (reactionCollector.collected.get(YUP_EMOJI)) {
         // If we collected a yup
-        const good_count: number = reactionCollector.collected.get(YUP_EMOJI)
+        const goodCount: number = reactionCollector.collected.get(YUP_EMOJI)
           .count;
-        if (good_count >= NUM_TO_APPROVE + 1) {
+        if (goodCount >= NUM_TO_APPROVE + 1) {
           // We are ready to send
           checkupMsg.channel.send("Enough people have confirmed, sending...");
           sendToChannel(targets, "@everyone", client);
-          sendEmbed(toSend, title, targets, client, discord_message);
+          sendEmbed(toSend, title, targets, client, discordMessage);
           collector.stop(); // Keeps from multi sending, calls on(end()...
         } else {
           checkupMsg.channel.send(
-            "Need " +
-              (NUM_TO_APPROVE - good_count + 1).toString() +
-              " more to send"
+            `Need ${(NUM_TO_APPROVE - goodCount + 1).toString()} more to send`
           );
         }
       }

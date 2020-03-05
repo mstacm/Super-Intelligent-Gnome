@@ -1,4 +1,5 @@
 import { Message, RichEmbed } from "discord.js";
+import { logBot } from "../logging_config";
 
 const helpMessage: RichEmbed = new RichEmbed()
   .setColor("#4AC55E")
@@ -30,6 +31,7 @@ const helpMessage: RichEmbed = new RichEmbed()
   .setFooter("If you have any questions, talk to Gavin Lewis.");
 
 function cmdHelp(message: Message) {
+  logBot.debug("Sending help message.");
   message.channel.send(helpMessage);
 }
 
