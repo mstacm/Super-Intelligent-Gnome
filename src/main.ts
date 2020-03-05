@@ -1,6 +1,6 @@
 import Discord, { Message } from "discord.js";
-import parser from "discord-command-parser";
 import { logBot } from "./logging_config";
+import parser, { ParsedMessage } from "discord-command-parser";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -8,6 +8,8 @@ import { cmdPoll } from "./commands/poll";
 import { cmdHelp } from "./commands/help";
 import { cmdScream } from "./commands/scream";
 import { cmdRepeat } from "./commands/repeat";
+
+import { validatePoll, validateScream, ValidationError } from "./validators";
 
 // Info on changing user's nick names
 // https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
@@ -43,7 +45,11 @@ client.on("ready", () => {
   // const guilds = client.guilds;
 });
 
-client.on("message", (message: Message) => {
+function invalidCommand(parsed: ParsedMessage) {
+  console.log(`An invalid command, "${parsed.command}" was sent and rejected`);
+}
+
+client.on("message", async (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
   const parsed = parser.parse(message, prefix, {
     allowBots: false,
@@ -53,26 +59,41 @@ client.on("message", (message: Message) => {
   if (!parsed.success) return;
 
   if (
-    message.member.roles.find(role => role.name === "Officers") &&
-    message.member.guild.name === "ACM General"
+    true ||
+    (message.member.roles.find(role => role.name === "Officers") &&
+      message.member.guild.name === "ACM General")
   ) {
-    // Keep for testing
     if (message.content === "ping") {
       cmdPing(message);
     }
 
     if (parsed.command === "help") {
       cmdHelp(message);
-    } else if (parsed.command === "tada") {
-      message.channel.send("Its not party time. ");
     } else if (parsed.command === "poll") {
-      cmdPoll(message, parsed.arguments, client);
+      try {
+        validatePoll(parsed);
+        await cmdPoll(parsed, client);
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          message.reply(err.message);
+          invalidCommand(parsed);
+        }
+      }
     } else if (parsed.command === "repeat") {
-      cmdRepeat(message, client);
+      cmdRepeat(parsed);
     } else if (parsed.command === "scream") {
-      cmdScream(message, client);
+      try {
+        validateScream(parsed);
+        cmdScream(parsed, client);
+      } catch (err) {
+        if (err instanceof ValidationError) {
+          message.reply(err.message);
+          invalidCommand(parsed);
+        }
+      }
     } else {
-      message.channel.send(`Unknown command: ${parsed.command}`);
+      message.reply(`${parsed.command} is not a command`);
+      invalidCommand(parsed);
     }
   }
 });
