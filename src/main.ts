@@ -9,8 +9,6 @@ import { cmdHelp } from "./commands/help";
 import { cmdScream } from "./commands/scream";
 import { cmdRepeat } from "./commands/repeat";
 
-import { validatePoll, validateScream, ValidationError } from "./validators";
-
 // Info on changing user's nick names
 // https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
 // setInterval() might be able to be used to delay a timed message

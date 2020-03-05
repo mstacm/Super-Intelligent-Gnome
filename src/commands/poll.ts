@@ -2,7 +2,7 @@ import { TextChannel, Client, RichEmbed, Message } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { sendToChannel } from "../send";
 import { ValidationError, validatePoll } from "../validators";
-import { logBot, invalidCommand } from "../logging_config";
+import { invalidCommand } from "../logging_config";
 
 function getOptionsString(options: any) {
   let out: string = "";

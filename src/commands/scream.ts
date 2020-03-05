@@ -1,6 +1,6 @@
-import { Client, Message } from "discord.js";
+import { Client } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
-import { sendCheckup, sendToChannel } from "../send";
+import { sendCheckup } from "../send";
 import { logBot, invalidCommand } from "../logging_config";
 import { ValidationError, validateScream } from "../validators";
 
