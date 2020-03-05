@@ -1,5 +1,6 @@
 import Discord, { Message } from "discord.js";
 import parser from "discord-command-parser";
+import logBot from "logging_config.ts";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -29,7 +30,7 @@ const config: CONFIG = require("./config.json");
 const client = new Discord.Client();
 
 client.on("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`);
+  logBot.info(() => `Logged in as ${client.user.tag}`);
 
   client.user.setPresence({
     game: {
@@ -41,9 +42,6 @@ client.on("ready", () => {
   // Example for sending messages at a set time.
   // let interval = setInterval(function() { console.log("Hello"); }, 150);
   // const guilds = client.guilds;
-
-  // Send test announcement to the CDT Discord
-  // send_to_channel("CDT", "This is a test");
 });
 
 client.on("message", (message: Message) => {
@@ -52,9 +50,8 @@ client.on("message", (message: Message) => {
     allowBots: false,
     allowSelf: false
   });
+  // If parsing failed, back out
   if (!parsed.success) return;
-
-  // console.log(parsed);
 
   if (
     message.member.roles.find(role => role.name === "Officers") &&
