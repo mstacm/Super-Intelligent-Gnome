@@ -1,8 +1,9 @@
 import { Client, Message, RichEmbed } from "discord.js";
 import { Reminder, ReminderLoader } from "../reminder";
 import { sendToChannel, sendCheckup } from "../send";
+import { logBot } from "../logging_config";
 
-let helpMessage: RichEmbed = new RichEmbed()
+const helpMessage: RichEmbed = new RichEmbed()
   .setColor("#4AC55E")
   .setTitle("?remind Help")
   .setAuthor("Gnome");
@@ -14,32 +15,33 @@ function remindPush(msg: Message, args: string[], client: Client) {
   // let reminderNum: number = 0;  // The reminder number in the list [0+]
   let toSend: string = ""; // The string to send to the discords, determined by reminder
 
-  let reminderLoader: ReminderLoader = new ReminderLoader(); // Used to load reminders from storage
+  const reminderLoader: ReminderLoader = new ReminderLoader(); // Used to load reminders from storage
   let reminder: Reminder; // The Reminder object to send
 
   let sendMsg: boolean = true; // Goes false if there is not a specified reminder to push
 
   // Right now checks that coms are like |sec|web|
   // Need opening and closing pipes
-  let pattCommunities: RegExp = /\|(\w+\|){1,7}/i;
-  let communitiesArr: RegExpMatchArray = msg.content.match(pattCommunities);
+  const pattCommunities: RegExp = /\|(\w+\|){1,7}/i;
+  const communitiesArr: RegExpMatchArray = msg.content.match(pattCommunities);
 
   // Determines which reminder to push
   if (args[2] === "all") {
     // Push all the reminders
     // Probably shouldn't do this one
-    console.log("This will be implemented later.");
+    logBot.info("This will be implemented later.");
   } else if (typeof args[2] === "string" && !isNaN(Number(args[2]))) {
     // That line checks to make sure what was passed is a number
     // Push just the number given
     if (reminderLoader.validNum(Number(args[2]))) {
       // Make sure we have a valid number first
       reminder = reminderLoader.getReminderByNum(Number(args[2]));
-      console.log(typeof reminder);
+      logBot.debug(typeof reminder);
+
       toSend = reminder.get_string();
-      console.log("Going to toSend");
+      logBot.debug("Going to toSend");
     } else {
-      console.log("No idea which reminder to grab");
+      logBot.debug("No idea which reminder to grab");
       sendMsg = false;
     }
 
@@ -50,7 +52,7 @@ function remindPush(msg: Message, args: string[], client: Client) {
       sendCheckup(msg, communitiesArr[0].trim(), toSend, "Reminder", client);
     }
   } else {
-    console.log("No idea which reminder to grab");
+    logBot.debug("No idea which reminder to grab");
     sendMsg = false;
   }
 
@@ -113,7 +115,7 @@ function remind(msg: Message) {
 
   if (datetimeArr) {
     // If datetime was found, pull them from the array
-    let currdate = new Date();
+    const currdate = new Date();
     startdate = new Date(datetimeArr[1]);
     enddate = new Date(datetimeArr[7]);
 
@@ -128,8 +130,6 @@ function remind(msg: Message) {
       validConfig = false;
     }
   } else {
-    console.log(startdate);
-    console.log(enddate);
     msg.channel.send(
       "Date was not valid. ex) 01/12/2019 12:00-01/12/2019 12:50"
     );
@@ -148,7 +148,6 @@ function remind(msg: Message) {
     newReminder.save();
 
     msg.channel.send("Valid data message.");
-    console.log("Valid data message.");
   } else {
     msg.channel.send("That wasn't quite right, follow the format below.");
     msg.channel.send(

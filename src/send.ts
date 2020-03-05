@@ -56,6 +56,7 @@ export async function sendToChannel(
     ];
   }
 
+  logBot.debug("Beginning to send.");
   for (const community of filteredTargets) {
     if (community) {
       try {
@@ -104,9 +105,9 @@ function buildTestEmbed(
   dest: string,
   discordMessage: Message
 ) {
+  logBot.debug("Building test embed.");
   const msgEmbed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
-    .attachFile("./resources/acm-logo-thicc.png")
     .setTitle("ACM Announcement - DOUBLE CHECK")
     .setAuthor("Super Intelligent Gnome")
     .setThumbnail("https://cdn.mstacm.org/static/acm.png")
@@ -140,10 +141,11 @@ async function sendEmbed(
   client: Client,
   discordMessage: Message
 ) {
+  logBot.debug("Creating actual embed for message.");
+
   const msgEmbed: RichEmbed = new RichEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
-    .attachFile("https://cdn.mstacm.org/static/acm.png")
     .setAuthor("ACM Announcement")
     .setThumbnail("https://cdn.mstacm.org/static/acm.png")
 
@@ -152,6 +154,7 @@ async function sendEmbed(
   if (discordMessage.attachments.size > 0) {
     msgEmbed.attachFile(discordMessage.attachments.array()[0].url);
   }
+  logBot.debug("Message embed successfully created.");
   sendToChannel(dest, msgEmbed, client);
 }
 
@@ -167,10 +170,12 @@ export async function sendCheckup(
 ) {
   // Embeds can only be so long
   if (toSend.length >= 1024) {
+    logBot.debug("Message was over 1024 characters.");
     discordMessage.channel.send("Message must be less than 1024 characters.");
     return;
   }
   if (title.length >= 256) {
+    logBot.debug("Title was over 256 characters.");
     discordMessage.channel.send("Title must be less than 256 characters.");
     return;
   }

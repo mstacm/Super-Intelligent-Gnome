@@ -9,7 +9,7 @@ function cmdRepeat(message: Message, client: Client) {
   const title: string = message.content.substring(8, index);
   const toSend: string = message.content.substring(index + 1);
   if (toSend.length >= 1) {
-    logBot.debug("Sennding repeat message.");
+    logBot.debug("Sending repeat message.");
     sendCheckup(message, "HERE", toSend, title, client);
   } else {
     logBot.debug("Repeat message was too short.");
