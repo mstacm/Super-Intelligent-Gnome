@@ -1,5 +1,7 @@
 import { TextChannel, Client, RichEmbed, Message } from "discord.js";
 import { sendToChannel } from "../send";
+import { ValidationError } from "../validators";
+import { ParsedMessage } from "discord-command-parser";
 
 function getOptionsString(options: any) {
   let out: string = "";
@@ -11,12 +13,18 @@ function getOptionsString(options: any) {
   return out;
 }
 
-async function cmdPoll(message: Message, args: string[], client: Client) {
+async function cmdPoll(parsed: ParsedMessage, client: Client) {
   // ?poll target "Question" emoji1 "response meaning" emoji2 "xxxxx"...
-  const target = args[0];
+  const args = parsed.arguments;
+  const target = parsed.arguments[0];
 
   const options: any = {};
   for (let i = 2; i < args.length; i += 2) {
+    try {
+      await parsed.message.react(args[i]);
+    } catch (err) {
+      throw new ValidationError(`${args[i]} is not a valid emoji`);
+    }
     options[args[i]] = args[i + 1];
   }
 
@@ -30,7 +38,7 @@ async function cmdPoll(message: Message, args: string[], client: Client) {
 
   let polls: Message[];
   if (target.toLowerCase() === "here")
-    polls = [(await message.channel.send(pollEmbed)) as Message];
+    polls = [(await parsed.message.channel.send(pollEmbed)) as Message];
   else polls = await sendToChannel(target, pollEmbed, client);
   for (const p of polls) {
     for (const option in options) {
@@ -39,6 +47,7 @@ async function cmdPoll(message: Message, args: string[], client: Client) {
       }
     }
   }
+  await parsed.message.clearReactions();
 }
 
 export { cmdPoll };
