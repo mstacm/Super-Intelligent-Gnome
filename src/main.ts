@@ -39,14 +39,10 @@ client.on("ready", () => {
     },
     status: "online"
   });
-
-  // Example for sending messages at a set time.
-  // let interval = setInterval(function() { console.log("Hello"); }, 150);
-  // const guilds = client.guilds;
 });
 
 function invalidCommand(parsed: ParsedMessage) {
-  console.log(`An invalid command, "${parsed.command}" was sent and rejected`);
+  logBot.info(`An invalid command, "${parsed.command}" was sent and rejected`);
 }
 
 client.on("message", async (message: Message) => {
