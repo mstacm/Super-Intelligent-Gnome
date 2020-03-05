@@ -7,7 +7,7 @@ import {
   MessageReaction,
   User
 } from "discord.js";
-import logBot from "logging_config.ts";
+import { logBot } from "./logging_config";
 
 const serverInfo = require("./server_info.json");
 
@@ -67,7 +67,7 @@ export async function sendToChannel(
             chan => chan.name === serverInfo[community].channel
           ) as TextChannel;
           if (channel) {
-            logBot.info(() => `Sending to ${community}`);
+            logBot.debug(() => `Sending to ${community}`);
 
             const msg: Message | Message[] = await channel.send(message);
             if (msg instanceof Message) {
@@ -76,13 +76,19 @@ export async function sendToChannel(
               messages.concat(msg);
             }
           } else {
-            console.log(`Channel: ${serverInfo[community].channel} not found`);
+            logBot.error(
+              () => `Channel: ${serverInfo[community].channel} not found`,
+              new Error()
+            );
           }
         } else {
-          console.log(`Guild: ${serverInfo[community].guild} not found`);
+          logBot.error(
+            `Guild: ${serverInfo[community].guild} not found`,
+            new Error()
+          );
         }
       } catch (err) {
-        console.log("Error sending the message.");
+        logBot.error("Error sending the message.", err);
       }
     }
   }

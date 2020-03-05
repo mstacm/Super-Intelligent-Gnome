@@ -1,6 +1,6 @@
 import Discord, { Message } from "discord.js";
 import parser from "discord-command-parser";
-import logBot from "logging_config.ts";
+import { logBot } from "./logging_config";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
