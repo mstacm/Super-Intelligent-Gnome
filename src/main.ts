@@ -68,11 +68,11 @@ client.on("message", async (message: Message) => {
   } else if (userIsOfficer && parsed.command === "scream") {
     cmdScream(parsed, client);
   } else if (parsed.command === "help") {
-    cmdHelp(message);
+    cmdHelp(message, userIsOfficer);
   } else if (parsed.command === "poll") {
     await cmdPoll(parsed, client);
   } else {
-    message.reply(`${parsed.command} is not a command`);
+    message.reply(`${parsed.command} is not a command you can use`);
     invalidCommand(parsed);
   }
 });
