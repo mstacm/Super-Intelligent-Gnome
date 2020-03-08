@@ -31,7 +31,7 @@ const helpMessage: RichEmbed = new RichEmbed()
   .setFooter("If you have any questions, talk to Gavin Lewis.");
 
 function cmdHelp(message: Message) {
-  logBot.debug("Sending help message.");
+  logBot.debug("Help command received.");
   message.channel.send(helpMessage);
 }
 

@@ -48,28 +48,32 @@ client.on("message", async (message: Message) => {
   // If parsing failed, back out
   if (!parsed.success) return;
 
+  // Permission checks
+  let userIsOfficer: boolean = false;
+
   if (
     message.member.roles.find(role => role.name === "Officers") &&
     message.member.guild.name === "ACM General"
-  ) {
-    if (message.content === "ping") {
-      logBot.debug("Ping command received.");
-      cmdPing(message);
-    }
+  )
+    userIsOfficer = true;
 
-    if (parsed.command === "help") {
-      logBot.debug("Help command received.");
-      cmdHelp(message);
-    } else if (parsed.command === "poll") {
-      await cmdPoll(parsed, client);
-    } else if (parsed.command === "repeat") {
-      cmdRepeat(parsed);
-    } else if (parsed.command === "scream") {
-      cmdScream(parsed, client);
-    } else {
-      message.reply(`${parsed.command} is not a command`);
-      invalidCommand(parsed);
-    }
+  // Coommands only to be run by officers
+  if (message.content === "ping") {
+    logBot.debug("Ping command received.");
+    cmdPing(message);
+  }
+
+  if (userIsOfficer && parsed.command === "repeat") {
+    cmdRepeat(parsed);
+  } else if (userIsOfficer && parsed.command === "scream") {
+    cmdScream(parsed, client);
+  } else if (parsed.command === "help") {
+    cmdHelp(message);
+  } else if (parsed.command === "poll") {
+    await cmdPoll(parsed, client);
+  } else {
+    message.reply(`${parsed.command} is not a command`);
+    invalidCommand(parsed);
   }
 });
 
