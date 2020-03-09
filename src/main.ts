@@ -1,5 +1,6 @@
 import Discord, { Message } from "discord.js";
 import parser, { ParsedMessage } from "discord-command-parser";
+import { AuthenticationError } from "./authenticators";
 import { logBot } from "./logging_config";
 import { ValidationError } from "./validators";
 
@@ -30,9 +31,16 @@ const config: CONFIG = require("./config.json");
 const client = new Discord.Client();
 
 function invalidCommand(parsed: ParsedMessage) {
-  logBot.info(`An invalid command, "${parsed.command}" was sent and rejected`);
+  logBot.info(
+    `An invalid command from ${parsed.message.author.username}, "${parsed.command}" was sent and rejected`
+  );
 }
 
+function unauthenticatedCommand(parsed: ParsedMessage) {
+  logBot.info(
+    `User: "${parsed.message.author.username}" just tried to use command: "${parsed.command}".`
+  );
+}
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
@@ -53,15 +61,6 @@ client.on("message", async (message: Message) => {
   // If parsing failed, back out
   if (!parsed.success) return;
 
-  // Permission checks
-  let userIsOfficer: boolean = false;
-
-  if (
-    message.member.roles.find(role => role.name === "Officers") &&
-    message.member.guild.name === "ACM General"
-  )
-    userIsOfficer = true;
-
   // Coommands only to be run by officers
   if (message.content === "ping") {
     logBot.debug("Ping command received.");
@@ -69,12 +68,12 @@ client.on("message", async (message: Message) => {
   }
 
   try {
-    if (userIsOfficer && parsed.command === "repeat") {
+    if (parsed.command === "repeat") {
       cmdRepeat(parsed);
-    } else if (userIsOfficer && parsed.command === "scream") {
+    } else if (parsed.command === "scream") {
       cmdScream(parsed, client);
     } else if (parsed.command === "help") {
-      cmdHelp(message, userIsOfficer);
+      cmdHelp(message);
     } else if (parsed.command === "poll") {
       await cmdPoll(parsed, client);
     } else {
@@ -85,6 +84,10 @@ client.on("message", async (message: Message) => {
     if (err instanceof ValidationError) {
       parsed.message.reply(err.message);
       invalidCommand(parsed);
+    } else if (err instanceof AuthenticationError) {
+      unauthenticatedCommand(parsed);
+    } else {
+      console.log(err);
     }
   }
 });

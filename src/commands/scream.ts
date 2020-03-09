@@ -2,6 +2,7 @@ import { Client } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { sendCheckup } from "../send";
 import { logBot } from "../logging_config";
+import { isAuthenticated } from "../authenticators";
 import { validateScream } from "../validators";
 
 // Yell at everyone on every server. This will definitely make friends.
@@ -9,6 +10,7 @@ import { validateScream } from "../validators";
 const SERVERS: string = "EVERYONE";
 
 function cmdScream(parsed: ParsedMessage, client: Client) {
+  isAuthenticated(parsed.message.member, "officer");
   validateScream(parsed);
   const message: string = parsed.body;
   const index: number = message.indexOf("\n");

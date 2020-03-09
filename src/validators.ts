@@ -74,4 +74,4 @@ function validateScream(parsed: ParsedMessage) {
     );
 }
 
-export { validateRepeat, validatePoll, validateScream, ValidationError };
+export { validatePoll, validateRepeat, validateScream, ValidationError };
