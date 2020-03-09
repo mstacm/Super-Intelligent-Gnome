@@ -1,6 +1,7 @@
 import Discord, { Message } from "discord.js";
 import parser, { ParsedMessage } from "discord-command-parser";
-import { logBot, invalidCommand } from "./logging_config";
+import { logBot } from "./logging_config";
+import { ValidationError } from "./validators";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -27,6 +28,10 @@ const prefix = "?";
 const config: CONFIG = require("./config.json");
 
 const client = new Discord.Client();
+
+function invalidCommand(parsed: ParsedMessage) {
+  logBot.info(`An invalid command, "${parsed.command}" was sent and rejected`);
+}
 
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
@@ -63,17 +68,24 @@ client.on("message", async (message: Message) => {
     cmdPing(message);
   }
 
-  if (userIsOfficer && parsed.command === "repeat") {
-    cmdRepeat(parsed);
-  } else if (userIsOfficer && parsed.command === "scream") {
-    cmdScream(parsed, client);
-  } else if (parsed.command === "help") {
-    cmdHelp(message, userIsOfficer);
-  } else if (parsed.command === "poll") {
-    await cmdPoll(parsed, client);
-  } else {
-    message.reply(`${parsed.command} is not a command you can use`);
-    invalidCommand(parsed);
+  try {
+    if (userIsOfficer && parsed.command === "repeat") {
+      cmdRepeat(parsed);
+    } else if (userIsOfficer && parsed.command === "scream") {
+      cmdScream(parsed, client);
+    } else if (parsed.command === "help") {
+      cmdHelp(message, userIsOfficer);
+    } else if (parsed.command === "poll") {
+      await cmdPoll(parsed, client);
+    } else {
+      message.reply(`${parsed.command} is not a command you can use`);
+      invalidCommand(parsed);
+    }
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      parsed.message.reply(err.message);
+      invalidCommand(parsed);
+    }
   }
 });
 

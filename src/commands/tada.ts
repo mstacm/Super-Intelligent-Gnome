@@ -5,4 +5,3 @@ function cmdTada(message: Message) {
 }
 
 export { cmdTada };
-
