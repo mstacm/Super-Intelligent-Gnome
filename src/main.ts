@@ -30,17 +30,20 @@ const config: CONFIG = require("./config.json");
 
 const client = new Discord.Client();
 
+// Used to log when a user attempts to use a command that does not exist
 function invalidCommand(parsed: ParsedMessage) {
   logBot.info(
     `An invalid command from ${parsed.message.author.username}, "${parsed.command}" was sent and rejected`
   );
 }
 
+// Used to log when a user attempts to use a command they are not allowed to use
 function unauthenticatedCommand(parsed: ParsedMessage) {
   logBot.info(
     `User: "${parsed.message.author.username}" just tried to use command: "${parsed.command}".`
   );
 }
+
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
@@ -61,7 +64,7 @@ client.on("message", async (message: Message) => {
   // If parsing failed, back out
   if (!parsed.success) return;
 
-  // Coommands only to be run by officers
+  // Commands only to be run by officers
   if (message.content === "ping") {
     logBot.debug("Ping command received.");
     cmdPing(message);
@@ -87,7 +90,7 @@ client.on("message", async (message: Message) => {
     } else if (err instanceof AuthenticationError) {
       unauthenticatedCommand(parsed);
     } else {
-      console.log(err);
+      logBot.warn(err.message);
     }
   }
 });
