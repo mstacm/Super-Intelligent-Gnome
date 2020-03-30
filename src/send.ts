@@ -52,7 +52,8 @@ export async function sendToChannel(
       "W",
       "HACK",
       "DATA",
-      "CDT"
+      "CDT",
+      "CS"
     ];
   }
 
