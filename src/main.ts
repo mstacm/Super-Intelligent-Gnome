@@ -48,8 +48,9 @@ client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
   client.user.setPresence({
-    game: {
-      name: "with Typescript"
+    activity: {
+      name: "Welcome | ?help",
+      type: "CUSTOM_STATUS"
     },
     status: "online"
   });

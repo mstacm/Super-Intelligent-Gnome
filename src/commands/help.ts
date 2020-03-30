@@ -1,7 +1,7 @@
-import { Message, RichEmbed } from "discord.js";
+import { Message, MessageEmbed } from "discord.js";
 import { logBot } from "../logging_config";
 
-const helpMessage: RichEmbed = new RichEmbed()
+const helpMessage: MessageEmbed = new MessageEmbed()
   .setColor("#4AC55E")
   .setTitle("Help Message")
   .setAuthor("Gnome")

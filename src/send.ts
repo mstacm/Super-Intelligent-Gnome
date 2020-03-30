@@ -3,9 +3,10 @@ import {
   Guild,
   Message,
   TextChannel,
-  RichEmbed,
+  MessageEmbed,
   MessageReaction,
-  User
+  User,
+  GuildChannel
 } from "discord.js";
 import { logBot } from "./logging_config";
 
@@ -15,7 +16,7 @@ const serverInfo = require("./server_info.json");
  */
 export async function sendToChannel(
   targets: string | TextChannel,
-  message: string | RichEmbed,
+  message: string | MessageEmbed,
   client: Client
 ): Promise<Message[]> {
   // targets: A string that looks like |sec|web|
@@ -61,12 +62,12 @@ export async function sendToChannel(
   for (const community of filteredTargets) {
     if (community) {
       try {
-        const guild: Guild = client.guilds.find(
-          guild => guild.name === serverInfo[community].guild
+        const guild: Guild = client.guilds.cache.find(
+          (guildCheck: Guild) => guildCheck.name === serverInfo[community].guild
         );
         if (guild) {
-          const channel: TextChannel = guild.channels.find(
-            chan => chan.name === serverInfo[community].channel
+          const channel: TextChannel = guild.channels.cache.find(
+            (chan: GuildChannel) => chan.name === serverInfo[community].channel
           ) as TextChannel;
           if (channel) {
             logBot.debug(() => `Sending to ${community}`);
@@ -107,7 +108,7 @@ function buildTestEmbed(
   discordMessage: Message
 ) {
   logBot.debug("Building test embed.");
-  const msgEmbed: RichEmbed = new RichEmbed()
+  const msgEmbed: MessageEmbed = new MessageEmbed()
     .setColor("#4AC55E")
     .setTitle("ACM Announcement - DOUBLE CHECK")
     .setAuthor("Super Intelligent Gnome")
@@ -129,7 +130,7 @@ function buildTestEmbed(
     );
 
   if (discordMessage.attachments.size > 0) {
-    msgEmbed.setImage(discordMessage.attachments.array()[0].url);
+    msgEmbed.setImage(discordMessage.attachments.first().url);
   }
   return msgEmbed;
 }
@@ -144,7 +145,7 @@ async function sendEmbed(
 ) {
   logBot.debug("Creating actual embed for message.");
 
-  const msgEmbed: RichEmbed = new RichEmbed()
+  const msgEmbed: MessageEmbed = new MessageEmbed()
     .setColor("#4AC55E")
     .setTitle(title)
     .setAuthor("ACM Announcement")
@@ -153,7 +154,7 @@ async function sendEmbed(
     .addField("[@everyone][announcement]", msg);
 
   if (discordMessage.attachments.size > 0) {
-    msgEmbed.attachFile(discordMessage.attachments.array()[0].url);
+    msgEmbed.attachFiles([discordMessage.attachments.first().url]);
   }
   logBot.debug("Message embed successfully created.");
   sendToChannel(dest, msgEmbed, client);

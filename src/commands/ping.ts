@@ -5,4 +5,3 @@ function cmdPing(message: Message) {
 }
 
 export { cmdPing };
-
