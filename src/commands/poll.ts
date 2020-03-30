@@ -1,7 +1,8 @@
 import { TextChannel, Client, RichEmbed, Message } from "discord.js";
-import { sendToChannel } from "../send";
-import { ValidationError } from "../validators";
 import { ParsedMessage } from "discord-command-parser";
+import { sendToChannel } from "../send";
+import { ValidationError, validatePoll } from "../validators";
+import { logBot } from "../logging_config";
 
 function getOptionsString(options: any) {
   let out: string = "";
@@ -15,6 +16,8 @@ function getOptionsString(options: any) {
 
 async function cmdPoll(parsed: ParsedMessage, client: Client) {
   // ?poll target "Question" emoji1 "response meaning" emoji2 "xxxxx"...
+
+  validatePoll(parsed);
   const args = parsed.arguments;
   const target = parsed.arguments[0];
 

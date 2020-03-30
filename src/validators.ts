@@ -26,6 +26,12 @@ function validateTarget(targetString: string): boolean {
   return true;
 }
 
+function validateRepeat(parsed: ParsedMessage) {
+  // Need something to repeat, cant be empty
+  if (parsed.arguments.length === 0)
+    throw new ValidationError("Nothing was sent");
+}
+
 function validatePoll(parsed: ParsedMessage) {
   if (parsed.arguments.length === 0)
     throw new ValidationError("No arguments specified");
@@ -68,4 +74,4 @@ function validateScream(parsed: ParsedMessage) {
     );
 }
 
-export { validatePoll, validateScream, ValidationError };
+export { validatePoll, validateRepeat, validateScream, ValidationError };

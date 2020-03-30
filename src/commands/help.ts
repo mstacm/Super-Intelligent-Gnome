@@ -9,17 +9,7 @@ const helpMessage: RichEmbed = new RichEmbed()
     "I am here to help unite the communities and let them know of events going on around ACM!"
   )
   .addField("?help", "Display a list of commands.")
-  .addField("?remind", "Use to create reminders for yourself or others.")
-  .addField(
-    "Example usage",
-    "?remind $Title$ |Location| 12/24/2020 08:42-12/25/2020 13:45",
-    true
-  )
-  .addField(
-    "?remind -p n |SEC|GEN|",
-    "Send reminder n to the Security and General servers.",
-    true
-  )
+  .addField("?poll", "Create polls for users to respond to.")
   .addField(
     "?scream",
     "Spread your word across every Discord. Put your title on the first line, and put the message on the line below."
@@ -31,8 +21,8 @@ const helpMessage: RichEmbed = new RichEmbed()
   .setFooter("If you have any questions, talk to Gavin Lewis.");
 
 function cmdHelp(message: Message) {
-  logBot.debug("Sending help message.");
-  message.channel.send(helpMessage);
+  logBot.debug("Help command received.");
+  message.reply(helpMessage);
 }
 
 export { cmdHelp };
