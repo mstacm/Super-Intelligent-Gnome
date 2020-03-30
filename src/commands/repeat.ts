@@ -6,7 +6,7 @@ import { validateRepeat } from "../validators";
 // Repeats the message back to you.
 
 function cmdRepeat(parsed: ParsedMessage) {
-  isAuthenticated(parsed.message.member, "officer");
+  isAuthenticated(parsed, "officer");
   validateRepeat(parsed);
   logBot.debug("Sending repeat message.");
   parsed.message.channel.send(parsed.body);
