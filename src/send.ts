@@ -12,6 +12,15 @@ import { logBot } from "./logging_config";
 
 const serverInfo = require("./server_info.json");
 
+class MessageReturnedAsArrayError extends Error {
+  name: string;
+
+  constructor(message: string) {
+    super(message);
+    this.name = "MessageReturnedAsArrayError";
+  }
+}
+
 /*  Will send the contents of an approved embed to the intended destination
  */
 export async function sendToChannel(
@@ -62,9 +71,13 @@ export async function sendToChannel(
   for (const community of filteredTargets) {
     if (community) {
       try {
-        const guild: Guild = client.guilds.cache.find(
+        const guildCollection: any = client.guilds.cache;
+        const guild: any = guildCollection.find(
           (guildCheck: Guild) => guildCheck.name === serverInfo[community].guild
         );
+        // const guild: Guild = client.guilds.cache.find(
+        //   (guildCheck: Guild) => guildCheck.name === serverInfo[community].guild
+        // );
         if (guild) {
           const channel: TextChannel = guild.channels.cache.find(
             (chan: GuildChannel) => chan.name === serverInfo[community].channel
@@ -130,7 +143,8 @@ function buildTestEmbed(
     );
 
   if (discordMessage.attachments.size > 0) {
-    msgEmbed.setImage(discordMessage.attachments.first().url);
+    const dmAttachmentsCollection: any = discordMessage.attachments;
+    msgEmbed.setImage(dmAttachmentsCollection.first().url);
   }
   return msgEmbed;
 }
@@ -154,7 +168,8 @@ async function sendEmbed(
     .addField("[@everyone][announcement]", msg);
 
   if (discordMessage.attachments.size > 0) {
-    msgEmbed.attachFiles([discordMessage.attachments.first().url]);
+    const dmAttachmentsCollection: any = discordMessage.attachments;
+    msgEmbed.attachFiles([dmAttachmentsCollection.first().url]);
   }
   logBot.debug("Message embed successfully created.");
   sendToChannel(dest, msgEmbed, client);
@@ -188,6 +203,7 @@ export async function sendCheckup(
 
   const NUM_TO_APPROVE = 2;
   const NUM_TO_DISAPPROVE = 1;
+  // https://www.utf8-chartable.de/unicode-utf8-table.pl?start=128512
   const YUP_EMOJI = "👌";
   const NOPE_EMOJI = "🚫";
 
@@ -204,9 +220,12 @@ export async function sendCheckup(
     // If we have a single message
     await checkupMsg.react(YUP_EMOJI).then(() => checkupMsg.react(NOPE_EMOJI));
   } else {
-    await checkupMsg[0]
-      .react(YUP_EMOJI)
-      .then(() => checkupMsg[0].react(NOPE_EMOJI));
+    logBot.error(
+      "The checkup message returned as an array, which is wrong",
+      new MessageReturnedAsArrayError(
+        "The checkup message should not be an array."
+      )
+    );
   }
 
   if (checkupMsg instanceof Message) {
@@ -214,50 +233,43 @@ export async function sendCheckup(
       time: 150000
     });
 
-    collector.on("collect", (reaction, reactionCollector) => {
-      if (reactionCollector.collected.get(NOPE_EMOJI)) {
+    collector.on("collect", (reaction: MessageReaction) => {
+      if (reaction.emoji.name === NOPE_EMOJI) {
         // If we collected a Nope
-        const badCount: number = reactionCollector.collected.get(NOPE_EMOJI)
-          .count;
-        if (badCount >= 2) {
+        if (reaction.count >= NUM_TO_DISAPPROVE + 1) {
           // Someone said no
-          collector.stop();
+          collector.stop("noped");
         }
       }
-      if (reactionCollector.collected.get(YUP_EMOJI)) {
+      if (reaction.emoji.name === YUP_EMOJI) {
         // If we collected a yup
-        const goodCount: number = reactionCollector.collected.get(YUP_EMOJI)
-          .count;
-        if (goodCount >= NUM_TO_APPROVE + 1) {
+        if (reaction.count >= NUM_TO_APPROVE + 1) {
           // We are ready to send
           checkupMsg.channel.send("Enough people have confirmed, sending...");
-          sendToChannel(targets, "@everyone", client);
-          sendEmbed(toSend, title, targets, client, discordMessage);
-          collector.stop(); // Keeps from multi sending, calls on(end()...
+          //sendToChannel(targets, "@everyone", client);
+          //sendEmbed(toSend, title, targets, client, discordMessage);
+          collector.stop("sent"); // Keeps from multi sending, calls on(end()...
         } else {
           checkupMsg.channel.send(
-            `Need ${(NUM_TO_APPROVE - goodCount + 1).toString()} more to send`
+            `Need ${(
+              NUM_TO_APPROVE -
+              reaction.count +
+              1
+            ).toString()} more to send`
           );
         }
       }
     });
 
-    collector.on("end", collected => {
-      if (collected.get(NOPE_EMOJI)) {
-        // Collected a nope
-        if (collected.get(NOPE_EMOJI).count >= NUM_TO_DISAPPROVE + 1) {
-          checkupMsg.channel.send("Someone said no, cancelling sending.");
-        }
-      } else if (collected.get(YUP_EMOJI)) {
-        // We collected a yup
-        if (collected.get(YUP_EMOJI).count < NUM_TO_APPROVE + 1) {
-          checkupMsg.channel.send(
-            "There was not enough feedback, get more reactions."
-          );
-        }
+    collector.on("end", (collected, reason: string) => {
+      if (reason === "noped") {
+        // We got noped
+        checkupMsg.channel.send("Someone said no, cancelling sending.");
+      } else if (reason === "sent") {
+        checkupMsg.channel.send("Sent a message after successful checkup.");
+      } else {
+        checkupMsg.channel.send("Not enough votes were cast.");
       }
     });
-  } else {
-    checkupMsg[0].awaitReactions(filter);
   }
 }

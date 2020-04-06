@@ -11,10 +11,15 @@ const helpMessage: MessageEmbed = new MessageEmbed()
   .addField("?help", "Display a list of commands.")
   .addField("?poll", "Create polls for users to respond to.")
   .addField(
+    "Example:",
+    '?poll here "whats up doc" :muscle: "not much" :smiling_imp: "too much"',
+    true
+  )
+  .addField(
     "?scream",
     "Spread your word across every Discord. Put your title on the first line, and put the message on the line below."
   )
-  .addField("Example usage", "?scream Title of Event\\nMessage body", true)
+  .addField("Example:", "?scream Title of Event\\nMessage body", true)
   .addField("?repeat", "I repeat what you say back to you.")
   .addField("Example usage:", "?repeat Does this 👌 emoji work?")
   .setTimestamp()

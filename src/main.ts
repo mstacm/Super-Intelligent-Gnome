@@ -47,13 +47,7 @@ function unauthenticatedCommand(parsed: ParsedMessage) {
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
-  client.user.setPresence({
-    activity: {
-      name: "Welcome | ?help",
-      type: "CUSTOM_STATUS"
-    },
-    status: "online"
-  });
+  client.user.setActivity("Welcome | ?help");
 });
 
 client.on("message", async (message: Message) => {

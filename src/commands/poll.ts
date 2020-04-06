@@ -1,4 +1,4 @@
-import { TextChannel, Client, RichEmbed, Message } from "discord.js";
+import { TextChannel, Client, MessageEmbed, Message } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { sendToChannel } from "../send";
 import { ValidationError, validatePoll } from "../validators";
@@ -31,7 +31,7 @@ async function cmdPoll(parsed: ParsedMessage, client: Client) {
     options[args[i]] = args[i + 1];
   }
 
-  const pollEmbed = new RichEmbed()
+  const pollEmbed = new MessageEmbed()
     .setColor("#4AC55E")
     .setTitle(args[1])
     .setAuthor("Poll")
@@ -50,7 +50,7 @@ async function cmdPoll(parsed: ParsedMessage, client: Client) {
       }
     }
   }
-  await parsed.message.clearReactions();
+  await parsed.message.reactions.removeAll();
 }
 
 export { cmdPoll };
