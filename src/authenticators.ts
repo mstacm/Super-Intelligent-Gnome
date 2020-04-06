@@ -10,7 +10,7 @@ class AuthenticationError extends Error {
   }
 }
 
-// Takes a GuildMember  from a parsed message and the requested access level, and checks to make sure
+// Takes a GuildMember from a parsed message and the requested access level, and checks to make sure
 // they are allowed to access that level.
 // Can check officer or user right now, can break up officer into exec board and chairs.
 function isAuthenticated(parsed: ParsedMessage, requestedAccess: string) {

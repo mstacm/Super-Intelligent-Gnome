@@ -1,5 +1,6 @@
 import {
   Client,
+  Collection,
   Guild,
   Message,
   TextChannel,
@@ -246,8 +247,8 @@ export async function sendCheckup(
         if (reaction.count >= NUM_TO_APPROVE + 1) {
           // We are ready to send
           checkupMsg.channel.send("Enough people have confirmed, sending...");
-          //sendToChannel(targets, "@everyone", client);
-          //sendEmbed(toSend, title, targets, client, discordMessage);
+          sendToChannel(targets, "@everyone", client);
+          sendEmbed(toSend, title, targets, client, discordMessage);
           collector.stop("sent"); // Keeps from multi sending, calls on(end()...
         } else {
           checkupMsg.channel.send(
@@ -261,7 +262,7 @@ export async function sendCheckup(
       }
     });
 
-    collector.on("end", (collected, reason: string) => {
+    collector.on("end", (collected: Collection, reason: string) => {
       if (reason === "noped") {
         // We got noped
         checkupMsg.channel.send("Someone said no, cancelling sending.");
