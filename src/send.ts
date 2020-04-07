@@ -262,7 +262,7 @@ export async function sendCheckup(
       }
     });
 
-    collector.on("end", (collected: Collection, reason: string) => {
+    collector.on("end", (collected, reason: string) => {
       if (reason === "noped") {
         // We got noped
         checkupMsg.channel.send("Someone said no, cancelling sending.");
