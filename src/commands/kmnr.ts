@@ -1,6 +1,5 @@
 import { Client, VoiceConnection } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
-import * as fs from "fs";
 import { logBot } from "../logging_config";
 import { isAuthenticated } from "../authenticators";
 import { validateKMNR } from "../validators";
