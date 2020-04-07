@@ -76,7 +76,11 @@ client.on("message", async (message: Message) => {
     } else if (parsed.command === "poll") {
       await cmdPoll(parsed, client);
     } else if (parsed.command === "kmnr") {
+<<<<<<< HEAD
       await cmdKMNR(parsed, client);
+=======
+      cmdKMNR(parsed, client);
+>>>>>>> Gnome can enter and exit voice channels on command
     } else {
       message.reply(`${parsed.command} is not a command you can use`);
       invalidCommand(parsed);

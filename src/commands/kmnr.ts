@@ -27,12 +27,5 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
   } else if (parsed.arguments[0] === "stop") {
     parsed.message.member.voice.channel.leave();
   }
-
-  // Join the user's voice channel
-
-  // Play stream in said voice channel
-
-  // sendCheckup(parsed.message, SERVERS, toSend, title, client);
 }
-
 export { cmdKMNR };
