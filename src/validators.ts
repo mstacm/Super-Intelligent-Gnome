@@ -95,12 +95,6 @@ function validateKMNR(parsed: ParsedMessage) {
   if (!parsed.message.member.voice.channel.speakable)
     throw new ValidationError("I am unable to speak in this voice channel");
   // Fail if author wants a start and bot is already in that voice channel
-  console.log(
-    parsed.message.client.voice.connections.find(
-      (vc: VoiceConnection) =>
-        vc.channel.id === parsed.message.member.voice.channel.id
-    )
-  );
   if (
     parsed.message.client.voice.connections.find(
       (vc: VoiceConnection) =>
