@@ -9,7 +9,7 @@ import { validateScream } from "../validators";
 
 const SERVERS: string = "EVERYONE";
 
-function cmdScream(parsed: ParsedMessage, client: Client) {
+async function cmdScream(parsed: ParsedMessage, client: Client) {
   isAuthenticated(parsed, "officer");
   validateScream(parsed);
   const message: string = parsed.body;
