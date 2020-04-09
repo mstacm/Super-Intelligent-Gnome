@@ -25,7 +25,7 @@ const helpMessage: MessageEmbed = new MessageEmbed()
   .setTimestamp()
   .setFooter("If you have any questions, talk to Gavin Lewis.");
 
-async function cmdHelp(message: Message) {
+function cmdHelp(message: Message) {
   logBot.debug("Help command received.");
   message.reply(helpMessage);
 }
