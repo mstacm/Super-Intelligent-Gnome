@@ -47,12 +47,7 @@ function unauthenticatedCommand(parsed: ParsedMessage) {
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
-  client.user.setPresence({
-    game: {
-      name: "with Typescript"
-    },
-    status: "online"
-  });
+  client.user.setActivity("Welcome | ?help");
 });
 
 client.on("message", async (message: Message) => {
@@ -72,11 +67,11 @@ client.on("message", async (message: Message) => {
 
   try {
     if (parsed.command === "repeat") {
-      cmdRepeat(parsed);
+      await cmdRepeat(parsed);
     } else if (parsed.command === "scream") {
-      cmdScream(parsed, client);
+      await cmdScream(parsed, client);
     } else if (parsed.command === "help") {
-      cmdHelp(message);
+      await cmdHelp(message);
     } else if (parsed.command === "poll") {
       await cmdPoll(parsed, client);
     } else {
