@@ -76,7 +76,7 @@ client.on("message", async (message: Message) => {
     } else if (parsed.command === "poll") {
       await cmdPoll(parsed, client);
     } else if (parsed.command === "kmnr") {
-      cmdKMNR(parsed, client);
+      await cmdKMNR(parsed, client);
     } else {
       message.reply(`${parsed.command} is not a command you can use`);
       invalidCommand(parsed);
