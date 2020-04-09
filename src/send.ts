@@ -76,9 +76,7 @@ export async function sendToChannel(
         const guild: any = guildCollection.find(
           (guildCheck: Guild) => guildCheck.name === serverInfo[community].guild
         );
-        // const guild: Guild = client.guilds.cache.find(
-        //   (guildCheck: Guild) => guildCheck.name === serverInfo[community].guild
-        // );
+
         if (guild) {
           const channel: TextChannel = guild.channels.cache.find(
             (chan: GuildChannel) => chan.name === serverInfo[community].channel
