@@ -1,9 +1,11 @@
 import { Client, VoiceConnection } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
-import * as fs from "fs";
 import { logBot } from "../logging_config";
-import { isAuthenticated } from "../authenticators";
 import { validateKMNR } from "../validators";
+
+const ytdl = require("ytdl-core");
+
+// const ytdl = require("ytdl-core");
 
 // Yell at everyone on every server. This will definitely make friends.
 
@@ -11,11 +13,19 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
   logBot.debug("Attempting to join voice channel");
   // Check if user is in a voice channel, else throw error
   validateKMNR(parsed);
+
+  // This is the VoiceConnection to a channel
+  // Used to monitor connections to a VC
   let voiceConn: VoiceConnection;
 
   if (parsed.arguments[0] === "start") {
     // Join the voice channel
     voiceConn = await parsed.message.member.voice.channel.join();
+
+    voiceConn.on("reconnecting", () => {
+      logBot.warn("Attempting to reconnectto voice channel");
+    });
+
     // Start playing them sick beats
     // When you create a broadcast, it is added to an array here
     // client.voice.createBroadcast()
@@ -23,6 +33,9 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
     const kmnrBroadcast = client.voice.createBroadcast();
 
     kmnrBroadcast.play("https://boombox.kmnr.org/webstream.mp3");
+
+    // kmnrBroadcast.play(ytdl("https://www.youtube.com/watch?v=kewXtkGmDtw"));
+
     voiceConn.play(kmnrBroadcast);
   } else if (parsed.arguments[0] === "stop") {
     parsed.message.member.voice.channel.leave();

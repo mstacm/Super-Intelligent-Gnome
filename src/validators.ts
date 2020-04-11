@@ -112,7 +112,7 @@ function validateKMNR(parsed: ParsedMessage) {
     ) &&
     parsed.arguments[0] === "stop"
   )
-    throw new ValidationError("I am not in there anyways");
+    throw new ValidationError("I am not in there anyway");
 }
 
 export {
