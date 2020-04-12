@@ -3,10 +3,6 @@ import { ParsedMessage } from "discord-command-parser";
 import { logBot } from "../logging_config";
 import { validateKMNR } from "../validators";
 
-const ytdl = require("ytdl-core");
-
-// const ytdl = require("ytdl-core");
-
 // Yell at everyone on every server. This will definitely make friends.
 
 async function cmdKMNR(parsed: ParsedMessage, client: Client) {
@@ -21,9 +17,10 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
   if (parsed.arguments[0] === "start") {
     // Join the voice channel
     voiceConn = await parsed.message.member.voice.channel.join();
+    logBot.info(`Connected to Voice Channel: ${voiceConn.channel.name}`);
 
     voiceConn.on("reconnecting", () => {
-      logBot.warn("Attempting to reconnectto voice channel");
+      logBot.warn("Attempting to reconnect to voice channel");
     });
 
     // Start playing them sick beats
@@ -33,8 +30,6 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
     const kmnrBroadcast = client.voice.createBroadcast();
 
     kmnrBroadcast.play("https://boombox.kmnr.org/webstream.mp3");
-
-    // kmnrBroadcast.play(ytdl("https://www.youtube.com/watch?v=kewXtkGmDtw"));
 
     voiceConn.play(kmnrBroadcast);
   } else if (parsed.arguments[0] === "stop") {
