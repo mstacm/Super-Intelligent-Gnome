@@ -1,9 +1,10 @@
-import { Client, VoiceConnection } from "discord.js";
+import { Client, VoiceConnection, VoiceBroadcast } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { logBot } from "../logging_config";
 import { validateKMNR } from "../validators";
 
-// Yell at everyone on every server. This will definitely make friends.
+// Will broadcast KMNR to a voice channel
+let kmnrBroadcast: VoiceBroadcast;
 
 async function cmdKMNR(parsed: ParsedMessage, client: Client) {
   logBot.debug("Attempting to join voice channel");
@@ -27,9 +28,13 @@ async function cmdKMNR(parsed: ParsedMessage, client: Client) {
     // When you create a broadcast, it is added to an array here
     // client.voice.createBroadcast()
     // We add it to a var so we can manipulate it
-    const kmnrBroadcast = client.voice.createBroadcast();
 
-    kmnrBroadcast.play("https://boombox.kmnr.org/webstream.mp3");
+    if (client.voice.broadcasts.length > 0) {
+      kmnrBroadcast = client.voice.broadcasts[0];
+    } else {
+      kmnrBroadcast = client.voice.createBroadcast();
+      kmnrBroadcast.play("https://boombox.kmnr.org/webstream.mp3");
+    }
 
     voiceConn.play(kmnrBroadcast);
   } else if (parsed.arguments[0] === "stop") {
