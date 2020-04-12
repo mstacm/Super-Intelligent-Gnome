@@ -1,4 +1,5 @@
-import { ParsedMessage } from "discord-command-parser";
+import { VoiceConnection } from "discord.js";
+import { ParsedMessage, parse } from "discord-command-parser";
 
 class ValidationError extends Error {
   name: string;
@@ -74,4 +75,50 @@ function validateScream(parsed: ParsedMessage) {
     );
 }
 
-export { validatePoll, validateRepeat, validateScream, ValidationError };
+function validateKMNR(parsed: ParsedMessage) {
+  if (parsed.arguments.length === 0)
+    throw new ValidationError("KMNR needs start or stop argument");
+  if (parsed.arguments.length > 1)
+    throw new ValidationError("Too many arguments for KMNR command");
+  // Author must be in a voice channel AND in the same guild
+  if (
+    !(
+      parsed.message.member.voice.channel &&
+      parsed.message.member.guild === parsed.message.member.voice.guild
+    )
+  )
+    throw new ValidationError(
+      "Author was not in the correct state to call this command"
+    );
+  if (!parsed.message.member.voice.channel.joinable)
+    throw new ValidationError("For some reason I cannot join you");
+  if (!parsed.message.member.voice.channel.speakable)
+    throw new ValidationError("I am unable to speak in this voice channel");
+  // Fail if author wants a start and bot is already in that voice channel
+  if (
+    parsed.message.client.voice.connections.find(
+      (vc: VoiceConnection) =>
+        vc.channel.id === parsed.message.member.voice.channel.id
+    ) &&
+    parsed.arguments[0] === "start"
+  ) {
+    throw new ValidationError("We are already partying, friend");
+  }
+  // Fail if author wants to stop the bot when it is not in there
+  if (
+    !parsed.message.client.voice.connections.find(
+      (vc: VoiceConnection) =>
+        vc.channel.id === parsed.message.member.voice.channel.id
+    ) &&
+    parsed.arguments[0] === "stop"
+  )
+    throw new ValidationError("I am not in there anyway");
+}
+
+export {
+  validatePoll,
+  validateRepeat,
+  validateScream,
+  validateKMNR,
+  ValidationError
+};

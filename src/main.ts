@@ -10,6 +10,7 @@ import { cmdPoll } from "./commands/poll";
 import { cmdHelp } from "./commands/help";
 import { cmdScream } from "./commands/scream";
 import { cmdRepeat } from "./commands/repeat";
+import { cmdKMNR } from "./commands/kmnr";
 
 // Info on changing user's nick names
 // https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
@@ -74,6 +75,8 @@ client.on("message", async (message: Message) => {
       await cmdHelp(message);
     } else if (parsed.command === "poll") {
       await cmdPoll(parsed, client);
+    } else if (parsed.command === "kmnr") {
+      await cmdKMNR(parsed, client);
     } else {
       message.reply(`${parsed.command} is not a command you can use`);
       invalidCommand(parsed);
