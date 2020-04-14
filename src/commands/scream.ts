@@ -1,21 +1,3 @@
-<<<<<<< HEAD
-import { Client, Message } from "discord.js";
-import { send_to_channel } from "../send";
-
-// Yell at everyone on every server. This will definitely make friends.
-
-const SERVERS: string = "EVERYONE"; 
-
-function cmd_scream(message: Message, client: Client) {
-    var toSend: string = message.content.substring(8);
-    console.log(toSend);
-    if (toSend.length >= 1) {
-        send_to_channel(SERVERS, toSend, client);
-    }
-}
-
-export { cmd_scream };
-=======
 import { Client } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { sendCheckup } from "../send";
@@ -40,4 +22,3 @@ async function cmdScream(parsed: ParsedMessage, client: Client) {
 }
 
 export { cmdScream };
->>>>>>> 09493761af265c82a8cd3cae3372224219a24f14
