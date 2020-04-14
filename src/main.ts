@@ -1,74 +1,96 @@
-import * as Discord from 'discord.js';
-// npm run dev
+import Discord, { Message } from "discord.js";
+import parser, { ParsedMessage } from "discord-command-parser";
+import { AuthenticationError } from "./authenticators";
+import { logBot } from "./logging_config";
+import { ValidationError } from "./validators";
 
 // Import commands from the commands/ folder
-import { cmd_ping } from "./commands/ping";
-import { cmd_help } from "./commands/help";
-import { cmd_remind } from "./commands/remind";
-import { cmd_scream } from "./commands/scream";
-import { cmd_repeat } from "./commands/repeat";
-
+import { cmdPing } from "./commands/ping";
+import { cmdPoll } from "./commands/poll";
+import { cmdHelp } from "./commands/help";
+import { cmdScream } from "./commands/scream";
+import { cmdRepeat } from "./commands/repeat";
+import { cmdKMNR } from "./commands/kmnr";
 
 // Info on changing user's nick names
-//https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
+// https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
 // setInterval() might be able to be used to delay a timed message
 // Could also just add a command only officers could use to push the events
 
 // Info on seperating out the commands, kind of works but feels a bit wonk
 // Maybe just because im tired
-//https://discordjs.guide/command-handling/adding-features.html#a-dynamic-help-command
-
+// https://discordjs.guide/command-handling/adding-features.html#a-dynamic-help-command
 
 interface CONFIG {
-  prefix: string,
-  token: string
+  prefix: string;
+  token: string;
+}
+const prefix = "?";
+
+const config: CONFIG = require("./config.json");
+
+const client = new Discord.Client();
+
+// Used to log when a user attempts to use a command that does not exist
+function invalidCommand(parsed: ParsedMessage) {
+  logBot.info(
+    `An invalid command from ${parsed.message.author.username}, "${parsed.command}" was sent and rejected`
+  );
 }
 
-let client = new Discord.Client();
-const config: CONFIG = require("../config.json");
-let server_info = require("../server_info.json");
+// Used to log when a user attempts to use a command they are not allowed to use
+function unauthenticatedCommand(parsed: ParsedMessage) {
+  logBot.info(
+    `User: "${parsed.message.author.username}" just tried to use command: "${parsed.command}".`
+  );
+}
 
-client.on('ready', () => {
-  console.log('Logged in as ' + client.user.tag);
-  
-  // Example for sending messages at a set time.
-  //let interval = setInterval(function() { console.log("Hello"); }, 150);
-  let guilds = client.guilds;
+client.on("ready", () => {
+  logBot.info(() => `Logged in as ${client.user.tag}`);
 
-  // Send test announcement to the CDT Discord  
-  // send_to_channel("CDT", "This is a test");
+  client.user.setActivity("Welcome | ?help");
 });
 
-client.on('message', msg => {
-
+client.on("message", async (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
-  if (msg.author.bot) return;
+  const parsed = parser.parse(message, prefix, {
+    allowBots: false,
+    allowSelf: false
+  });
+  // If parsing failed, back out
+  if (!parsed.success) return;
 
-  var args:string[] = msg.content.split(' ', 4);
-  var cmdSwitch:string = args[0].charAt(0);
-
-  console.log(args);
-
-  // Keep for testing
-  if (msg.content === 'ping') {
-    cmd_ping(msg);
+  // Commands only to be run by officers
+  if (message.content === "ping") {
+    logBot.debug("Ping command received.");
+    cmdPing(message);
   }
-  //console.log(msg.member.roles);
-  if (cmdSwitch === '?' && msg.member.roles.find(role => role.name === "Officers") && msg.member.guild.name === "ACM General") {
-    
-    if (args[0] === "?help") {
-      cmd_help(msg);
-    } else if (args[0] === "?remind") {
-      cmd_remind(msg, args, client);
-    } else if (args[0] === "?scream") {
-      cmd_scream(msg, client);
-    } else if (args[0] === "?repeat") {
-      cmd_repeat(msg);  
+
+  try {
+    if (parsed.command === "repeat") {
+      await cmdRepeat(parsed);
+    } else if (parsed.command === "scream") {
+      await cmdScream(parsed, client);
+    } else if (parsed.command === "help") {
+      await cmdHelp(message);
+    } else if (parsed.command === "poll") {
+      await cmdPoll(parsed, client);
+    } else if (parsed.command === "kmnr") {
+      await cmdKMNR(parsed, client);
     } else {
-      msg.channel.send(`Unkown command: ${args[0]}`);
+      message.reply(`${parsed.command} is not a command you can use`);
+      invalidCommand(parsed);
+    }
+  } catch (err) {
+    if (err instanceof ValidationError) {
+      parsed.message.reply(err.message);
+      invalidCommand(parsed);
+    } else if (err instanceof AuthenticationError) {
+      unauthenticatedCommand(parsed);
+    } else {
+      logBot.warn(err.message);
     }
   }
 });
-
 
 client.login(config.token);

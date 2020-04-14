@@ -1,0 +1,56 @@
+import { TextChannel, Client, MessageEmbed, Message } from "discord.js";
+import { ParsedMessage } from "discord-command-parser";
+import { sendToChannel } from "../send";
+import { ValidationError, validatePoll } from "../validators";
+import { logBot } from "../logging_config";
+
+function getOptionsString(options: any) {
+  let out: string = "";
+  for (const option in options) {
+    if (Object.prototype.hasOwnProperty.call(options, option)) {
+      out += `${option} ${options[option]}\n\n`;
+    }
+  }
+  return out;
+}
+
+async function cmdPoll(parsed: ParsedMessage, client: Client) {
+  // ?poll target "Question" emoji1 "response meaning" emoji2 "xxxxx"...
+
+  validatePoll(parsed);
+  const args = parsed.arguments;
+  const target = parsed.arguments[0];
+
+  const options: any = {};
+  for (let i = 2; i < args.length; i += 2) {
+    try {
+      await parsed.message.react(args[i]);
+    } catch (err) {
+      throw new ValidationError(`${args[i]} is not a valid emoji`);
+    }
+    options[args[i]] = args[i + 1];
+  }
+
+  const pollEmbed = new MessageEmbed()
+    .setColor("#4AC55E")
+    .setTitle(args[1])
+    .setAuthor("Poll")
+    .addField("Options", getOptionsString(options))
+    .setTimestamp()
+    .setFooter("If you have any questions, talk to Gavin Lewis.");
+
+  let polls: Message[];
+  if (target.toLowerCase() === "here")
+    polls = [(await parsed.message.channel.send(pollEmbed)) as Message];
+  else polls = await sendToChannel(target, pollEmbed, client);
+  for (const p of polls) {
+    for (const option in options) {
+      if (Object.prototype.hasOwnProperty.call(options, option)) {
+        p.react(option);
+      }
+    }
+  }
+  await parsed.message.reactions.removeAll();
+}
+
+export { cmdPoll };
