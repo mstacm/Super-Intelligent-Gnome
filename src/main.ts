@@ -1,8 +1,10 @@
 import Discord, { Message } from "discord.js";
 import parser, { ParsedMessage } from "discord-command-parser";
+import { google } from "googleapis";
 import { AuthenticationError } from "./authenticators";
 import { logBot } from "./logging_config";
 import { ValidationError } from "./validators";
+import { createTables } from "./db_manager";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -11,6 +13,7 @@ import { cmdHelp } from "./commands/help";
 import { cmdScream } from "./commands/scream";
 import { cmdRepeat } from "./commands/repeat";
 import { cmdKMNR } from "./commands/kmnr";
+import { cmdBoombox } from "./commands/boombox";
 
 // Info on changing user's nick names
 // https://stackoverflow.com/questions/41247353/change-user-nickname-with-discord-js
@@ -24,11 +27,11 @@ import { cmdKMNR } from "./commands/kmnr";
 interface CONFIG {
   prefix: string;
   token: string;
+  ytToken: string;
 }
-const prefix = "?";
-
 const config: CONFIG = require("./config.json");
 
+createTables();
 const client = new Discord.Client();
 
 // Used to log when a user attempts to use a command that does not exist
@@ -53,7 +56,7 @@ client.on("ready", () => {
 
 client.on("message", async (message: Message) => {
   // ignore bots and self, and messages that dont start with prefix
-  const parsed = parser.parse(message, prefix, {
+  const parsed = parser.parse(message, config.prefix, {
     allowBots: false,
     allowSelf: false
   });
@@ -77,6 +80,8 @@ client.on("message", async (message: Message) => {
       await cmdPoll(parsed, client);
     } else if (parsed.command === "kmnr") {
       await cmdKMNR(parsed, client);
+    } else if (parsed.command === "boombox") {
+      await cmdBoombox(parsed, client, config.ytToken);
     } else {
       message.reply(`${parsed.command} is not a command you can use`);
       invalidCommand(parsed);
