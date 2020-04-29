@@ -13,6 +13,12 @@ import { addToQueue, listQueue, clearQueue } from "../db_manager";
 const YOUTUBE_BASE: string = "https://www.youtube.com/watch?v=";
 const ytCLIENT = google.youtube("v3");
 
+interface songObj {
+  // eslint-disable-next-line camelcase
+  q_num: number;
+  title: string;
+}
+
 async function cmdBoombox(
   parsed: ParsedMessage,
   client: Client,
@@ -74,8 +80,8 @@ async function cmdBoombox(
     // Skip the current song
   } else if (parsed.arguments[0] === "queue") {
     // List the Queue
-    const queue: any = listQueue(SERVER_NAME);
-    console.log(queue);
+    const queue: songObj[] = listQueue(SERVER_NAME);
+    console.log("INT", queue);
   } else if (parsed.arguments[0] === "clear") {
     clearQueue(SERVER_NAME);
   }
