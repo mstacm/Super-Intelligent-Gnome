@@ -1,15 +1,37 @@
 import { Client, VoiceConnection, VoiceBroadcast, Channel } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
-import { google, sql_v1beta4 } from "googleapis";
-import { CodeVerifierResults } from "google-auth-library";
-import { Database } from "sqlite3";
+import { google } from "googleapis";
+import { resolveCname } from "dns";
 import { logBot } from "../logging_config";
-import { validateKMNR } from "../validators";
+import { validateBoombox } from "../validators";
 import { addToQueue, listQueue, clearQueue } from "../db_manager";
 
 // Used for all boombox commands. Will take a search term, grab the first
 // match from Youtube, add the song to the queue, and play the song
 
+// Call when we need to join a voice chat
+// Handles if the gnome is already in the VC already
+async function joinVC(parsed: ParsedMessage): Promise<VoiceConnection> {
+  return new Promise<VoiceConnection>(resolve => {
+    const targetChannel = parsed.message.member.voice.channel;
+    let voiceConn: VoiceConnection = parsed.message.client.voice.connections.find(
+      (vc: VoiceConnection) =>
+        vc.channel.id === parsed.message.member.voice.channel.id
+    );
+
+    // Skip if we already have a connection
+    if (!voiceConn) {
+      if (targetChannel.joinable && targetChannel.speakable) {
+        voiceConn = targetChannel.join();
+      } else {
+        throw new Error();
+      }
+    }
+    resolve(voiceConn);
+  });
+}
+
+// CONSTANT DECLARATIONS
 const YOUTUBE_BASE: string = "https://www.youtube.com/watch?v=";
 const ytCLIENT = google.youtube("v3");
 
@@ -19,27 +41,25 @@ interface songObj {
   title: string;
 }
 
+// Main function
 async function cmdBoombox(
   parsed: ParsedMessage,
   client: Client,
   ytToken: string
 ) {
   logBot.debug("Running boombox command.");
-  // List object that contains the link to the video and the title
-  // We make it a list so we can go back and forth and not lose songs
-  // in a session
-  // [url, title][]
-  // let queue: [string, string][];
-  const curr_song: number = 0;
+  validateBoombox(parsed);
+
   let voiceConn: VoiceConnection;
   const SERVER_NAME: string = parsed.message.member.guild.name;
 
   if (parsed.arguments[0] === "play") {
     // Must have a search term passed with it
+
     // Connect to a voice channel
-    // voiceConn = await parsed.message.member.voice.channel.join();
-    // Slam arguments 1+ together
-    // Search for term
+    voiceConn = await joinVC(parsed);
+
+    // Search for term and add it to the queue
     ytCLIENT.search.list(
       {
         part: "snippet",
@@ -72,8 +92,7 @@ async function cmdBoombox(
       }
     );
 
-    // Parse data and add to queue
-    // Play song in voice channel
+    // Check to see if we need to start playing or naw
   } else if (parsed.arguments[0] === "stop") {
     // Stop the song currently playing
   } else if (parsed.arguments[0] === "skip") {

@@ -115,10 +115,28 @@ function validateKMNR(parsed: ParsedMessage) {
     throw new ValidationError("I am not in there anyway");
 }
 
+function validateBoombox(parsed: ParsedMessage) {
+  if (parsed.arguments.length === 0)
+    throw new ValidationError(
+      "Boombox needs at least one more argument. (play, stop, queue)"
+    );
+  // Author must be in a voice channel AND in the same guild
+  if (
+    !(
+      parsed.message.member.voice.channel &&
+      parsed.message.member.guild === parsed.message.member.voice.guild
+    )
+  )
+    throw new ValidationError(
+      "Author was not in the correct state to call this command"
+    );
+}
+
 export {
   validatePoll,
   validateRepeat,
   validateScream,
   validateKMNR,
+  validateBoombox,
   ValidationError
 };
