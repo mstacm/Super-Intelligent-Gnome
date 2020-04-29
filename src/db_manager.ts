@@ -16,17 +16,35 @@ function createTables() {
         q_num INT,
         server TEXT,
         title TEXT,
-        url TEXT
+        url TEXT,
+        PRIMARY KEY(q_num, server)
     )`);
 
   const createServerData: Statement = db.prepare(`CREATE TABLE IF NOT EXISTS server_data (
         server_name TEXT,
         curr_song INT,
-        PRIMARY KEY(server_name)
+        playing_source TEXT
     )`);
 
   createSongs.run();
   createServerData.run();
+  db.close();
+}
+
+// Reset the serverData table
+// Need to add new guilds on startup, and also
+function resetServerData() {
+  const db = new Database(DB_PATH);
+  const deleteRows: Statement = db.prepare(`DELETE FROM server_data`);
+  deleteRows.run();
+  db.close();
+}
+
+function setDefaultServerData(serverName: string) {
+  const db = new Database(DB_PATH);
+  const updateData: Statement = db.prepare(`INSERT INTO server_data(server_name, curr_song, playing_source)
+  VALUES(?, -1, 'none')`);
+  updateData.run([serverName]);
   db.close();
 }
 
@@ -69,4 +87,11 @@ function listQueue(serverName: string): songObj[] {
   return data;
 }
 
-export { addToQueue, createTables, clearQueue, listQueue };
+export {
+  addToQueue,
+  createTables,
+  resetServerData,
+  setDefaultServerData,
+  clearQueue,
+  listQueue
+};

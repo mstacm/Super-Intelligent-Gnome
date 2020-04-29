@@ -4,7 +4,11 @@ import { google } from "googleapis";
 import { AuthenticationError } from "./authenticators";
 import { logBot } from "./logging_config";
 import { ValidationError } from "./validators";
-import { createTables } from "./db_manager";
+import {
+  createTables,
+  resetServerData,
+  setDefaultServerData
+} from "./db_manager";
 
 // Import commands from the commands/ folder
 import { cmdPing } from "./commands/ping";
@@ -31,7 +35,10 @@ interface CONFIG {
 }
 const config: CONFIG = require("./config.json");
 
+// Create the tables if they are gone
 createTables();
+// Empty all data from server_data table
+resetServerData();
 const client = new Discord.Client();
 
 // Used to log when a user attempts to use a command that does not exist
@@ -51,7 +58,14 @@ function unauthenticatedCommand(parsed: ParsedMessage) {
 client.on("ready", () => {
   logBot.info(() => `Logged in as ${client.user.tag}`);
 
+  // Set prescense
   client.user.setActivity("Welcome | ?help");
+
+  // Set server data for all servers we are in
+  client.guilds.cache.forEach(guild => {
+    setDefaultServerData(guild.name);
+    console.log(guild.name);
+  });
 });
 
 client.on("message", async (message: Message) => {
