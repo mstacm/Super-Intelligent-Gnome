@@ -2,9 +2,18 @@ import { Client, VoiceConnection, VoiceBroadcast, Channel } from "discord.js";
 import { ParsedMessage } from "discord-command-parser";
 import { google } from "googleapis";
 import { resolveCname } from "dns";
+import ytdl from "ytdl-core";
 import { logBot } from "../logging_config";
 import { validateBoombox } from "../validators";
-import { addToQueue, listQueue, clearQueue } from "../db_manager";
+import {
+  addToQueue,
+  listQueue,
+  clearQueue,
+  playingSource,
+  getCurrSongIndex,
+  getSongInfo,
+  updateCurrSong
+} from "../db_manager";
 
 // Used for all boombox commands. Will take a search term, grab the first
 // match from Youtube, add the song to the queue, and play the song
@@ -84,7 +93,6 @@ async function cmdBoombox(
                 results[i].snippet.title,
                 results[i].id.videoId
               );
-              // queue.push([results[i].id.videoId, results[i].snippet.title]);
               break;
             }
           }
@@ -93,6 +101,33 @@ async function cmdBoombox(
     );
 
     // Check to see if we need to start playing or naw
+    // There should be at least one song in the queue
+    const source = playingSource(SERVER_NAME);
+    if (source === "none") {
+      // We need to start playing at the current song
+      // Stores the current spot in the queue
+      const currSong = getCurrSongIndex(SERVER_NAME);
+      // if (currSong === -1) {
+      //   const songData = getSongInfo(SERVER_NAME, 0);
+      //   updateCurrSong(SERVER_NAME, 0);
+      // } else {
+
+      // }
+      const songData = getSongInfo(SERVER_NAME, currSong + 1);
+      console.log(songData);
+      updateCurrSong(SERVER_NAME, currSong + 1);
+      // eslint-disable-next-line dot-notation
+      const dispatcher = voiceConn.play(ytdl(YOUTUBE_BASE + songData["url"]));
+      dispatcher.on("end", () => {
+        console.log("Play next song, if there is one");
+      });
+    } else if (source === "youtube") {
+      console.log(
+        "Youtube was the last source, so we should already be playing"
+      );
+    } else if (source === "kmnr") {
+      console.log("KMNR was the last source");
+    }
   } else if (parsed.arguments[0] === "stop") {
     // Stop the song currently playing
   } else if (parsed.arguments[0] === "skip") {

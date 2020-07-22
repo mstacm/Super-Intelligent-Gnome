@@ -52,7 +52,7 @@ function setDefaultServerData(serverName: string) {
 function addToQueue(serverName: string, title: string, url: string) {
   const db = new Database(DB_PATH);
   const updateTable: Statement = db.prepare(`INSERT INTO songs(q_num, server, title, url)
-    SELECT COUNT(q_num)+1, ?, ?, ? 
+    SELECT COUNT(q_num), ?, ?, ? 
     FROM songs 
     WHERE server = ?`);
 
@@ -87,11 +87,55 @@ function listQueue(serverName: string): songObj[] {
   return data;
 }
 
+// Return what is currently playing music, or none at all
+function playingSource(serverName: string): string {
+  const db = new Database(DB_PATH);
+  const selectSource = db.prepare(
+    `SELECT playing_source FROM server_data WHERE server_name = ?`
+  );
+  const source = selectSource.get([serverName]);
+  // eslint-disable-next-line dot-notation
+  return source["playing_source"];
+}
+
+// Return the current playing song index, -1 means to start at the next song,
+// nothing has been playing
+function getCurrSongIndex(serverName: string): number {
+  const db = new Database(DB_PATH);
+  const currSong: Statement = db.prepare(
+    `SELECT curr_song FROM server_data WHERE server_name = ?`
+  );
+  // eslint-disable-next-line dot-notation
+  return currSong.get([serverName])["curr_song"];
+}
+
+function getSongInfo(serverName: string, songNum: number) {
+  const db = new Database(DB_PATH);
+  const songInfo: Statement = db.prepare(
+    `SELECT title, url FROM songs WHERE server = ? AND q_num = ?`
+  );
+  const temp = songInfo.get([serverName, songNum]);
+  console.log(temp, serverName, songNum);
+  return temp;
+}
+
+function updateCurrSong(serverName: string, songNum: number) {
+  const db = new Database(DB_PATH);
+  const updateSong: Statement = db.prepare(
+    `UPDATE server_data SET curr_song = ? WHERE server_name = ?`
+  );
+  updateSong.run(songNum, serverName);
+}
+
 export {
   addToQueue,
   createTables,
   resetServerData,
   setDefaultServerData,
   clearQueue,
-  listQueue
+  listQueue,
+  playingSource,
+  getCurrSongIndex,
+  getSongInfo,
+  updateCurrSong
 };
